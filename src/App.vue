@@ -3,6 +3,8 @@
     <v-navigation-drawer app v-if="exitButtonIsActive" fixed clipped class="grey lighten-4"><navigation/></v-navigation-drawer>
     <v-toolbar app clipped-left>
       <span class="title ml-3 mr-5">{{$appName}}</span>
+      <v-spacer></v-spacer>
+      <v-btn color="info" flat @click="exit" v-if="exitButtonIsActive"><i class="material-icons">exit_to_app</i>&nbsp;Выход</v-btn>
     </v-toolbar>
     <v-content>
       <v-container fluid>
@@ -18,15 +20,21 @@
 <script>
 import navigation from '@/components/navigation'
 import { mapGetters } from 'vuex'
-import S from '@/store'
 export default {
   name: 'App',
   components: {navigation},
   mounted () {
     if (localStorage.getItem('jwt') == null) {
-      S.commit('navigation/exitButtonIsActive', false)
+      this.$store.commit('navigation/exitButtonIsActive', false)
     } else {
-      S.commit('navigation/exitButtonIsActive', true)
+      this.$store.commit('navigation/exitButtonIsActive', true)
+    }
+  },
+  methods: {
+    exit () {
+      localStorage.clear()
+      this.$router.push({ name: 'auth' })
+      this.$store.commit('navigation/exitButtonIsActive', false)
     }
   },
   computed: {
