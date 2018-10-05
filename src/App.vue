@@ -16,8 +16,24 @@
 </template>
 
 <script>
+import navigation from '@/components/navigation'
+import { mapGetters } from 'vuex'
+import S from '@/store'
 export default {
-  name: 'App'
+  name: 'App',
+  components: {navigation},
+  mounted () {
+    if (localStorage.getItem('jwt') == null) {
+      S.commit('navigation/exitButtonIsActive', false)
+    } else {
+      S.commit('navigation/exitButtonIsActive', true)
+    }
+  },
+  computed: {
+    ...mapGetters({
+      exitButtonIsActive: 'navigation/exitButtonIsActive'
+    })
+  }
 }
 </script>
 
@@ -28,5 +44,10 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+.noshadow {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
 }
 </style>
