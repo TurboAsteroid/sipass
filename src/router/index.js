@@ -42,7 +42,7 @@ const router = new Router({
       name: 'search',
       component: search,
       meta: {
-        requiresAuth: false
+        requiresAuth: true
       }
     },
     {
@@ -65,13 +65,8 @@ router.beforeEach((to, from, next) => {
         params: { nextUrl: to.fullPath }
       })
     } else {
-      let user = JSON.parse(localStorage.getItem('user'))
       if (to.matched.some(record => record.meta.isAdmin)) {
-        if (user.isAdmin === 1) {
-          next()
-        } else {
-          next({ name: 'auth' })
-        }
+        next({ name: 'index' })
       } else {
         next()
       }
@@ -86,4 +81,5 @@ router.beforeEach((to, from, next) => {
     next()
   }
 })
+
 export default router

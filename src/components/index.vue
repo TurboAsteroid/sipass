@@ -1,5 +1,5 @@
 <template>
-  <v-layout align-center justify-center row fill-height><auth v-bind:redirPath="'/search'" /></v-layout>
+  <v-layout align-center justify-center row fill-height><auth :redirRouteName="'search'"/></v-layout>
 </template>
 
 <script>
@@ -7,6 +7,7 @@ import auth from '@/auth/auth'
 export default {
   name: 'index',
   components: {auth}
+
 }
 </script>
 
