@@ -1,5 +1,5 @@
 'use strict'
-import axios from 'axios'
+const axios = require('axios')
 module.exports = function (app, config, router) {
   /* GET home page. */
   router.get('/all57', async function (req, res) {
