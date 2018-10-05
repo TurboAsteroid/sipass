@@ -1,10 +1,10 @@
 'use strict'
-var express = require('express')
-var cookieParser = require('cookie-parser')
-var logger = require('morgan')
-var cors = require('cors')
-var app = express()
-var config = require('./config')
+const express = require('express')
+const cookieParser = require('cookie-parser')
+const logger = require('morgan')
+const cors = require('cors')
+const app = express()
+const config = require('./config')
 
 app.use(cors({origin: '*'}))
 app.use((req, res, next) => {
@@ -17,8 +17,8 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
 let router = express.Router()
-require('./routes/auth')(app, config, router)
-require('./routes/tags')(app, config, router)
+// require('./routes/auth')(app, config, router)
+require('./routes/all57')(app, config, router)
 
 app.use(router)
 module.exports = app
