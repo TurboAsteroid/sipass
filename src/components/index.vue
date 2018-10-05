@@ -1,13 +1,16 @@
 <template>
-  <v-layout align-center justify-center row fill-height><auth :redirRouteName="'search'"/></v-layout>
+  <v-layout align-center justify-center row fill-height>
+    <approved/>
+  </v-layout>
 </template>
 
 <script>
-import auth from '@/auth/auth'
+// вместо индекса мы будем всегда показывать согласованные пропуски
+// за исключением того случая, когда произведен поиск пропуска
+import approved from './approved'
 export default {
   name: 'index',
-  components: {auth}
-
+  components: {approved}
 }
 </script>
 
