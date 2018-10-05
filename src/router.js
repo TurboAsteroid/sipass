@@ -10,10 +10,24 @@ const auth = resolve => {
     )
   })
 }
-const search = resolve => {
-  require.ensure(['@/components/search'], () => {
+const approval = resolve => {
+  require.ensure(['@/components/approval'], () => {
     resolve(
-      require('@/components/search')
+      require('@/components/approval')
+    )
+  })
+}
+const approved = resolve => {
+  require.ensure(['@/components/approved'], () => {
+    resolve(
+      require('@/components/approved')
+    )
+  })
+}
+const inside = resolve => {
+  require.ensure(['@/components/inside'], () => {
+    resolve(
+      require('@/components/inside')
     )
   })
 }
@@ -30,17 +44,39 @@ const router = new Router({
     {
       path: '/',
       name: 'index',
-      component: index
+      component: index,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/login',
       name: 'auth',
-      component: auth
+      component: auth,
+      meta: {
+        guest: true
+      }
     },
     {
-      path: '/search',
-      name: 'search',
-      component: search,
+      path: '/approved',
+      name: 'approved',
+      component: approved,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/inside',
+      name: 'inside',
+      component: inside,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/approval',
+      name: 'approval',
+      component: approval,
       meta: {
         requiresAuth: true
       }
@@ -65,8 +101,13 @@ router.beforeEach((to, from, next) => {
         params: { nextUrl: to.fullPath }
       })
     } else {
+      let user = JSON.parse(localStorage.getItem('user'))
       if (to.matched.some(record => record.meta.isAdmin)) {
-        next({ name: 'index' })
+        if (user.isAdmin === 1) {
+          next()
+        } else {
+          next({ name: 'auth' })
+        }
       } else {
         next()
       }
@@ -81,5 +122,6 @@ router.beforeEach((to, from, next) => {
     next()
   }
 })
+
 
 export default router
