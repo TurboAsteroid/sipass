@@ -6,16 +6,19 @@ module.exports = function (app, config, router) {
     const kpps = [11002, 11008]
     var sapResponse = []
     for (let i = 0; i < kpps.length; i++) {
-      sapResponse = sapResponse.concat((
-        await axios.get(`https://sap-prx.ugmk.com:443/ummc/permit/list`, {
-          params: {
-            status: 57,
-            ckeckpoint: 11002,
-            'sap-user': 'skud_uem',
-            'sap-password': 'sRec137K'
-          }
-        })
-      ).data)
+      let response = (await axios.get(`https://sap-prx.ugmk.com:443/ummc/permit/list`, {
+        params: {
+          status: 57,
+          ckeckpoint: kpps[i],
+          'sap-user': 'skud_uem',
+          'sap-password': 'sRec137K'
+        }
+      })
+      ).data
+      for (let a = 0; a < response.length; a++) {
+        response[a].KPP = kpps[i].toString()
+        sapResponse.push(response[a])
+      }
     }
     res.send(sapResponse)
   })
