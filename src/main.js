@@ -14,7 +14,7 @@ Vue.prototype.$appName = 'Разовый пропуск'
 Vue.prototype.$appVersion = 'v3.r0'
 Vue.use(Vuetify)
 Vue.prototype.$config = {
-  api: 'https://localhost:3000'
+  api: 'http://10.1.100.161:8686'
 }
 Vue.config.productionTip = false
 

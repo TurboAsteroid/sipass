@@ -30,11 +30,11 @@
 </template>
 <script>
 import axios from 'axios'
-import S from '@/store'
 import router from '@/router'
+import S from '@/store'
 export default {
   name: 'auth',
-  props: [ 'redirPath' ],
+  props: ['redirRouteName'],
   data () {
     return {
       valid: false,
@@ -51,7 +51,7 @@ export default {
   },
   mounted () {
     if (localStorage.getItem('jwt') !== null && this.redirPath === undefined) {
-      router.push({ path: '/im' })
+      router.push({ path: this.redirPath })
     } else if (localStorage.getItem('jwt') !== null) {
       router.push({ path: this.redirPath })
     }
@@ -72,26 +72,22 @@ export default {
           },
           url: `${this.$config.api}/auth/login`
         }
-        // const res = { status: 200, data: { user: { name: 'me', isAdmin: 1}, token: 'ttt' } }
         try {
           const res = await axios(options)
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + res.data.token
           if (res.status === 200) {
-            let isAdmin = res.data.user.isAdmin
-            localStorage.setItem('user', JSON.stringify(res.data.user))
             localStorage.setItem('jwt', res.data.token)
+            localStorage.setItem('auth', res.data.auth)
             if (localStorage.getItem('jwt') != null) {
-            // this.$emit('loggedIn')
               if (this.$route.params.nextUrl != null) {
                 this.router.push(this.$route.params.nextUrl)
               } else {
-                if (isAdmin === 1) {
-                  router.push({ name: 'indexGroups' })
-                  S.commit('navigation/exitButtonIsActive', true)
-                } else {
-                  router.push({ name: 'indexRegister' })
-                  S.commit('navigation/exitButtonIsActive', true)
+                var redirRouteName = this.redirRouteName
+                if (redirRouteName === undefined) {
+                  redirRouteName = 'index'
                 }
+                router.push({ name: redirRouteName })
+                S.commit('navigation/exitButtonIsActive', true)
               }
             }
           } else {

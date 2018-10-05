@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
 let router = express.Router()
-// require('./routes/auth')(app, config, router)
+require('./routes/auth')(app, config, router)
 require('./routes/all57')(app, config, router)
 
 app.use(router)
