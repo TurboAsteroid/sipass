@@ -9,9 +9,12 @@ import 'vuetify/dist/vuetify.min.css' // Ensure you are using css-loader
 import 'material-design-icons-iconfont/dist/material-design-icons.css' // Ensure you are using css-loader
 import 'es6-promise/auto'
 import auth from '@/auth'
-auth.initAuth()
+auth.initAuth('auth', router)
 Vue.prototype.$appName = 'Разовый пропуск'
 Vue.prototype.$appVersion = 'v3.r0'
+Vue.prototype.$globalUserData = {
+  kpps: ['11002', '11008', 'Все']
+}
 Vue.use(Vuetify)
 Vue.prototype.$config = {
   api: 'http://10.1.100.161:8686'

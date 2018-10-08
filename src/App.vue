@@ -2,7 +2,7 @@
   <v-app>
     <v-navigation-drawer app v-if="exitButtonIsActive" fixed clipped class="grey lighten-4"><navigation/></v-navigation-drawer>
     <v-toolbar app clipped-left>
-      <span class="title ml-3 mr-5">{{$appName}}</span>
+      <span class="title ml-3 mr-5">{{$appName}}<span v-if="$route.params.name !== undefined">: {{$route.params.name}}</span></span>
       <v-spacer></v-spacer>
       <v-btn color="info" flat @click="exit" v-if="exitButtonIsActive"><i class="material-icons">exit_to_app</i>&nbsp;Выход</v-btn>
     </v-toolbar>

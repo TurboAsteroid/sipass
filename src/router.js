@@ -10,31 +10,38 @@ const auth = resolve => {
     )
   })
 }
-const approval = resolve => {
-  require.ensure(['@/components/approval'], () => {
-    resolve(
-      require('@/components/approval')
-    )
-  })
-}
-const approved = resolve => {
-  require.ensure(['@/components/approved'], () => {
-    resolve(
-      require('@/components/approved')
-    )
-  })
-}
-const inside = resolve => {
-  require.ensure(['@/components/inside'], () => {
-    resolve(
-      require('@/components/inside')
-    )
-  })
-}
+// const approval = resolve => {
+//   require.ensure(['@/components/approval'], () => {
+//     resolve(
+//       require('@/components/approval')
+//     )
+//   })
+// }
+// const approved = resolve => {
+//   require.ensure(['@/components/approved'], () => {
+//     resolve(
+//       require('@/components/approved')
+//     )
+//   })
+// }
+// const inside = resolve => {
+//   require.ensure(['@/components/inside'], () => {
+//     resolve(
+//       require('@/components/inside')
+//     )
+//   })
+// }
 const page404 = resolve => {
   require.ensure(['@/components/page404'], () => {
     resolve(
       require('@/components/page404')
+    )
+  })
+}
+const list = resolve => {
+  require.ensure(['@/components/list'], () => {
+    resolve(
+      require('@/components/list')
     )
   })
 }
@@ -50,6 +57,14 @@ const router = new Router({
       }
     },
     {
+      path: '/list/:id/:name',
+      name: 'list',
+      component: list,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
       path: '/login',
       name: 'auth',
       component: auth,
@@ -57,30 +72,30 @@ const router = new Router({
         guest: true
       }
     },
-    {
-      path: '/approved',
-      name: 'approved',
-      component: approved,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: '/inside',
-      name: 'inside',
-      component: inside,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: '/approval',
-      name: 'approval',
-      component: approval,
-      meta: {
-        requiresAuth: true
-      }
-    },
+    // {
+    //   path: '/approved',
+    //   name: 'approved',
+    //   component: approved,
+    //   meta: {
+    //     requiresAuth: true
+    //   }
+    // },
+    // {
+    //   path: '/inside',
+    //   name: 'inside',
+    //   component: inside,
+    //   meta: {
+    //     requiresAuth: true
+    //   }
+    // },
+    // {
+    //   path: '/approval',
+    //   name: 'approval',
+    //   component: approval,
+    //   meta: {
+    //     requiresAuth: true
+    //   }
+    // },
     {
       path: '*',
       name: 'page404',
@@ -94,6 +109,7 @@ const router = new Router({
 
 // авторизация
 router.beforeEach((to, from, next) => {
+  console.log(to)
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (localStorage.getItem('jwt') == null) {
       next({
