@@ -7,11 +7,13 @@
       <v-flex xs12 d-flex>
         <v-data-table :headers="headers" :items="showed" hide-actions>
           <template slot="items" slot-scope="props">
-            <td class="text-xs-left">{{ props.item.DOKNR }}</td>
-            <td class="text-xs-left">{{ props.item.NAME_DRVR }}</td>
-            <td class="text-xs-left">{{ M(props.item.E_DATE + props.item.E_TIME, 'YYYYMMDDHHmmSS').format('DD.MM.YYYY HH:mm:SS') }}</td>
-            <td class="text-xs-left">{{ M(props.item.VALID_DATE_FROM, 'YYYYMMDD').format('DD.MM.YYYY') }}</td>
-            <td class="text-xs-left">{{ M(props.item.VALID_DATE_TO, 'YYYYMMDD').format('DD.MM.YYYY') }}</td>
+            <tr @click="open(props.item.DOKNR)">
+              <td class="text-xs-left">{{ props.item.DOKNR }}</td>
+              <td class="text-xs-left">{{ props.item.NAME_DRVR }}</td>
+              <td class="text-xs-left">{{ M(props.item.E_DATE + props.item.E_TIME, 'YYYYMMDDHHmmSS').format('DD.MM.YYYY HH:mm:SS') }}</td>
+              <td class="text-xs-left">{{ M(props.item.VALID_DATE_FROM, 'YYYYMMDD').format('DD.MM.YYYY') }}</td>
+              <td class="text-xs-left">{{ M(props.item.VALID_DATE_TO, 'YYYYMMDD').format('DD.MM.YYYY') }}</td>
+            </tr>
           </template>
         </v-data-table>
       </v-flex>
@@ -45,7 +47,6 @@ export default {
   methods: {
     kpp_filter_changed (kpp) {
       this.selectedKpp = kpp
-      console.log(this.selectedKpp)
       if (kpp === 'Все') {
         this.showed = this.items
       } else {
@@ -55,6 +56,11 @@ export default {
     async refresh (kpp) {
       this.items = (await axios.get(`${this.$config.api}/all${this.$route.params.id}`)).data
       this.kpp_filter_changed(kpp)
+    },
+    async open (doknr) {
+      let kpp = (await (this.items.filter(async item => item.DOKNR === doknr)))[0].KPP
+      let response = (await axios.get(`${this.$config.api}/bydoknr?doknr=${doknr}&kpp=${kpp}`)).data
+      console.log(response)
     }
   },
   mounted () {
