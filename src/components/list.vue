@@ -2,7 +2,7 @@
   <v-container fluid grid-list-xl>
     <v-layout wrap align-center>
       <v-flex xs12 d-flex>
-        <v-select :items="kpps" label="Контрольно-пропускной пункт" v-model="kpp"/>
+        <far :kpps="kpps" @kpp_filter_changed="kpp_filter_changed" @refresh="refresh"/>
       </v-flex>
       <v-flex xs12 d-flex>
         <v-data-table :headers="headers" :items="showed" hide-actions>
@@ -20,15 +20,15 @@
 </template>
 
 <script>
+import far from './filter_and_refresh'
 import axios from 'axios'
 import moment from 'moment'
 export default {
-  name: 'approved',
+  name: 'list',
+  components: { far },
   data () {
     return {
-      kpps: ['11002', '11008', 'Все'], // тут надо будет переделывать на нормальные названия,
-      // поэтому придется переделвывать либо сервер еще либо фильтр в компутед
-      kpp: 'Все',
+      kpps: this.$globalUserData.kpps, // тут надо будет переделывать на нормальные названия
       M: moment,
       items: [],
       headers: [
@@ -37,19 +37,34 @@ export default {
         { text: 'Дата и время изменения состояния', value: '', sortable: false },
         { text: 'Дата начала действия', value: '', sortable: false },
         { text: 'Дата конец действия', value: '', sortable: false }
-      ]
+      ],
+      showed: [],
+      selectedKpp: 'Все'
     }
   },
-  async mounted () {
-    this.items = (await axios.get(`${this.$config.api}/all57`)).data
-  },
-  computed: {
-    showed () {
-      if (this.kpp === 'Все') {
-        return this.items
+  methods: {
+    kpp_filter_changed (kpp) {
+      this.selectedKpp = kpp
+      console.log(this.selectedKpp)
+      if (kpp === 'Все') {
+        this.showed = this.items
+      } else {
+        this.showed = this.items.filter(item => item.KPP === kpp)
       }
-      const result = this.items.filter(item => item.KPP === this.kpp)
-      return result
+    },
+    async refresh (kpp) {
+      this.items = (await axios.get(`${this.$config.api}/all${this.$route.params.id}`)).data
+      this.kpp_filter_changed(kpp)
+    }
+  },
+  mounted () {
+    // this.refresh('Все')
+    // обновление каждые 30 секунд
+    setTimeout(this.refresh(this.selectedKpp), 30000)
+  },
+  watch: {
+    '$route.params.id' (val, oldVal) {
+      this.refresh(this.selectedKpp)
     }
   }
 }

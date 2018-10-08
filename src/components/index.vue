@@ -1,16 +1,13 @@
 <template>
-  <v-layout align-center justify-center row fill-height>
-    <approved/>
-  </v-layout>
+  <v-layout />
 </template>
 
 <script>
-// вместо индекса мы будем всегда показывать согласованные пропуски
-// за исключением того случая, когда произведен поиск пропуска
-import approved from './approved'
 export default {
   name: 'index',
-  components: {approved}
+  created () {
+    this.$router.push({ name: 'list', params: { id: 57, name: 'Список согласованных пропусков' } })
+  }
 }
 </script>
 
