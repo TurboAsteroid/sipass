@@ -51,7 +51,7 @@ const router = new Router({
       }
     },
     {
-      path: '/card/:id/:kpp/:cardsipass',
+      path: '/card/:kpp/:doknr',
       name: 'card',
       component: card,
       meta: {
@@ -79,7 +79,6 @@ const router = new Router({
 
 // авторизация
 router.beforeEach((to, from, next) => {
-  console.log(to)
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (localStorage.getItem('jwt') == null) {
       next({

@@ -16,10 +16,10 @@ module.exports = function (app, config, router) {
       await logger('guest', 'guest', '/auth/login')
       next()
     } else if (req.headers.authorization !== undefined && req.headers.authorization !== null) {
-      const token = req.headers.authorization.replace(/Bearer /g, '')
-      const decoded = jwt.verify(token, config.jwtSecret)
-      await logger(`${decoded.login}`, 'try login', req.originalUrl)
       try {
+        const token = req.headers.authorization.replace(/Bearer /g, '')
+        const decoded = jwt.verify(token, config.jwtSecret)
+        await logger(`${decoded.login}`, 'try login', req.originalUrl)
         ad.findUser(decoded.login, async function (err, user) {
           if (err) {
             console.log('ERROR: ' + JSON.stringify(err))
