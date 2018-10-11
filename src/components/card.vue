@@ -1,15 +1,15 @@
 <template>
   <v-container fluid grid-list-xl>
     <v-layout wrap align-center>
-      <v-flex xs12 d-flex>
-        <v-data-table :headers="headers" :items="showed" hide-actions>
-          <template slot="card" slot-scope="props">
-            <tr @click="open(props.item.DOKNR)">
-              <td class="text-xs-left">{{ props.item.DOKNR }}</td>
-              <td class="text-xs-left">{{ props.item.NAME_DRVR }}</td>
-              <td class="text-xs-left">{{ M(props.item.E_DATE + props.item.E_TIME, 'YYYYMMDDHHmmSS').format('DD.MM.YYYY HH:mm:SS') }}</td>
-              <td class="text-xs-left">{{ M(props.item.VALID_DATE_FROM, 'YYYYMMDD').format('DD.MM.YYYY') }}</td>
-              <td class="text-xs-left">{{ M(props.item.VALID_DATE_TO, 'YYYYMMDD').format('DD.MM.YYYY') }}</td>
+      <v-btn @click="$router.go(-1)" color="info">Назад</v-btn>
+      <v-flex xs12 d-flex> <!-- таблица согласующих -->
+        <v-data-table :headers="headers"  :items="items.APPRDATA" hide-actions>
+          <template slot="items" slot-scope="props">
+            <tr>
+              <td class="text-xs-left">{{ props.item.APRST }}</td>
+              <td class="text-xs-left">{{ props.item.APRNAME_FULL }}</td>
+              <td class="text-xs-left">{{ props.item.CREATED_BY_NAME }}</td>
+              <td class="text-xs-left">{{ M(props.item.CREATED_ON + props.item.CREATED_TM, 'YYYYMMDDHHmmSS').format('DD.MM.YYYY HH:mm:SS') }}</td>
             </tr>
           </template>
         </v-data-table>
@@ -24,17 +24,19 @@
 
 <script>
 import axios from 'axios'
+import moment from 'moment'
 export default {
   name: 'card',
   data () {
     return {
+      M: moment,
       headers: [
         { text: 'Отметка', value: '', sortable: false },
         { text: 'Имя инициатора', value: '', sortable: false },
         { text: 'Имя создателя', value: '', sortable: false },
         { text: 'Дата и время создания', value: '', sortable: false }
       ],
-      card: [],
+      items: {},
       tmp: [{
         RESULT: 'SUCCESS',
         RESULT_TXT: 'SUCCESS',
@@ -288,7 +290,9 @@ export default {
     }
   },
   async mounted () {
-    this.card.push((await axios.get(`${this.$config.api}/bydoknr?doknr=${doknr}&kpp=${kpp}`)).data)
+    this.items = (await axios.get(`${this.$config.api}/bydoknr?doknr=${this.$route.params.doknr}&kpp=${this.$route.params.kpp}`)).data
+    console.log(this.items[0].APPRDATA.APRST)
+    console.log(this.items)
   }
 }</script>
 

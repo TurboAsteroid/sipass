@@ -4,7 +4,7 @@
         <v-select :items="kpps" label="Контрольно-пропускной пункт" v-model="kpp"/>
       </v-flex>
       <v-flex xs4 d-flex>
-        <v-btn @click="$emit('refresh', kpp)" color="info">Обновить</v-btn>
+        <v-btn @click="$emit('refresh', kpp)" color="info"><i class="material-icons">refresh</i> Обновить</v-btn>
       </v-flex>
     </v-layout>
 </template>
