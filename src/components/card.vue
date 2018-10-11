@@ -1,8 +1,71 @@
 <template>
   <v-container fluid grid-list-xl>
     <v-layout wrap align-center>
-      <v-btn @click="$router.go(-1)" color="info">Назад</v-btn>
+      <v-flex xs12 d-flex>
+        <v-btn @click="$router.go(-1)" color="info">Назад</v-btn>
+      </v-flex>
+      <v-flex xs6 d-flex>
+        <v-card>
+          <div>Состояние пропуска: {{items.ES_STATUS_T.DOSTX}}</div>
+          <div>Номер пропуска в SAP ERP: {{items.DATA_CARD.DOKNR_int}}</div>
+          <div>Документ удост. личность: {{items.DATA_CARD.ID_CARD_NUMB}}</div>
+          <div>ФИО: {{items.DATA_CARD.NAME_DRVR}}</div>
+          <div>Дата действия:
+            {{M(items.DATA_CARD.VALID_DATE_FROM, 'YYYYMMDD').format('DD.MM.YYYY')}} -
+            {{M(items.DATA_CARD.VALID_DATE_TO, 'YYYYMMDD').format('DD.MM.YYYY')}}</div>
+        </v-card>
+      </v-flex>
+      <v-flex xs6 d-flex>
+        <v-container fluid grid-list-xl>
+          <v-layout wrap align-center>
+        <v-flex xs12 d-flex>
+          <h2>Информация об ответственных сотрудниках</h2>
+        </v-flex>
+        <v-flex xs6 d-flex>
+          <v-card>
+            <div>
+              <h3>Направляется к сотруднику</h3>
+            </div>
+            <div>
+              ФИО:
+              {{items.DATA_CARD.INIT_PNM}}
+            </div>
+            <div>
+              Должность:
+              {{items.DATA_CARD.INIT_SNM}}
+            </div>
+            <div>
+              Подразделение:
+              {{items.DATA_CARD.INIT_ONM}}
+            </div>
+          </v-card>
+        </v-flex>
+        <v-flex xs6 d-flex>
+          <v-card>
+            <div>
+              <h3>Пропуск введен сотрудником</h3>
+            </div>
+            <div>
+              ФИО:
+              {{items.DATA_CARD.AUTHOR_PNM}}
+            </div>
+            <div>
+              Должность:
+              {{items.DATA_CARD.AUTHOR_SNM}}
+            </div>
+            <div>
+              Подразделение:
+              {{items.DATA_CARD.AUTHOR_ONM}}
+            </div>
+          </v-card>
+        </v-flex>
+          </v-layout>
+        </v-container>
+      </v-flex>
       <v-flex xs12 d-flex> <!-- таблица согласующих -->
+        <h2>Информация об отметке согласующими</h2>
+      </v-flex>
+      <v-flex xs12 d-flex>
         <v-data-table :headers="headers"  :items="items.APPRDATA" hide-actions>
           <template slot="items" slot-scope="props">
             <tr>
@@ -14,10 +77,6 @@
           </template>
         </v-data-table>
       </v-flex>
-      <v-flex xs12 d-flex></v-flex>
-      <v-flex xs12 d-flex></v-flex>
-      <v-flex xs12 d-flex></v-flex>
-      <v-flex xs12 d-flex></v-flex>
     </v-layout>
   </v-container>
 </template>
