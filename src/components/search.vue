@@ -1,6 +1,7 @@
 <template>
   <v-text-field
     v-model="propusk"
+    @click.native="propusk = ''"
     style="max-width: 500px;"
     solo-inverted
     flat
@@ -13,16 +14,21 @@
 // 0021528669
 export default {
   name: 'search',
-  props: ['propusk'],
+  data () {
+    return {
+      propusk: 666
+    }
+  },
+  created () {},
   methods: {
-    clear () {}
+  },
+  computed: {
   },
   watch: {
     propusk: function (val, oldVal) {
-      console.log(val)
-      console.log(this.propusk)
       if (val.toString().length === 10) {
-        this.$emit('clear_propusk')
+        console.log('search watcher')
+        this.propusk = ''
         this.$router.push({
           name: 'card',
           params: {kpp: getRandomInt(-10000000, -2), doknr: getRandomInt(-10000000, -2), propusk: val}
