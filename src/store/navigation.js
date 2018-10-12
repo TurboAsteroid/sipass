@@ -7,8 +7,7 @@ const navigation = {
     exitButtonIsActive: (state, val) => {
       state.exitButtonIsActive = val
       if (!val) {
-        localStorage.removeItem('user')
-        localStorage.removeItem('jwt')
+        localStorage.clear()
       }
     }
   },

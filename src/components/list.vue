@@ -59,7 +59,7 @@ export default {
     },
     async open (doknr) {
       let kpp = (await (this.items.filter(async item => item.DOKNR === doknr)))[0].KPP
-      this.$router.push({ name: 'card', params: { kpp: kpp, doknr: doknr } })
+      this.$router.push({ name: 'card', params: { kpp: kpp, doknr: doknr, propusk: -1 } })
     }
   },
   mounted () {

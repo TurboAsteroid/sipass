@@ -105,56 +105,67 @@ export default {
       status: { text: 'Согласован', value: 1 }
     }
   },
-  async mounted () {
-    this.items = (await axios.get(`${this.$config.api}/bydoknr?doknr=${this.$route.params.doknr}&kpp=${this.$route.params.kpp}`)).data
-    for (let i = 0; i < this.items.APPRDATA.length; i++) {
-      let st = this.items.APPRDATA[i].APRST
-      if (st === '1') {
-        this.items.APPRDATA[i].APRST = 'Согласован'
-        if (this.status.value < 1) {
-          this.status = { text: 'Согласован', value: 1, color: 'red' }
-        }
-      } else if (st === 'S') {
-        this.items.APPRDATA[i].APRST = 'Согласование'
-        if (this.status.value < 2) {
-          this.status = { text: 'Согласование', value: 2, color: 'red' }
-        }
-      } else if (st === 'IN') {
-        this.items.APPRDATA[i].APRST = 'Вход'
-        if (this.status.value < 3) {
-          this.status = { text: 'Вход', value: 3, color: 'red' }
-        }
-      } else if (st === 'OUT') {
-        this.items.APPRDATA[i].APRST = 'Выход'
-        if (this.status.value < 4) {
-          this.status = { text: 'Выход', value: 4, color: 'green' }
-        }
-      } else if (st === 'P') {
-        this.items.APPRDATA[i].APRST = 'Нет'
-        if (this.status.value < 5) {
-          this.status = { text: 'Нет', value: 5, color: 'red' }
+  mounted () {
+    this.getData()
+  },
+  methods: {
+    async getData () {
+      if (parseInt(this.$route.params.doknr) > 0) {
+        this.items = (await axios.get(`${this.$config.api}/bydoknr?doknr=${this.$route.params.doknr}&kpp=${this.$route.params.kpp}`)).data
+      }
+      if (parseInt(this.$route.params.propusk) > 0) {
+        this.items = (await axios.get(`${this.$config.api}/bycardid?propusk=${this.$route.params.propusk}`)).data
+      }
+      for (let i = 0; i < this.items.APPRDATA.length; i++) {
+        let st = this.items.APPRDATA[i].APRST
+        if (st === '1') {
+          this.items.APPRDATA[i].APRST = 'Согласован'
+          if (this.status.value < 1) {
+            this.status = { text: 'Согласован', value: 1, color: 'red' }
+          }
+        } else if (st === 'S') {
+          this.items.APPRDATA[i].APRST = 'Согласование'
+          if (this.status.value < 2) {
+            this.status = { text: 'Согласование', value: 2, color: 'red' }
+          }
+        } else if (st === 'IN') {
+          this.items.APPRDATA[i].APRST = 'Вход'
+          if (this.status.value < 3) {
+            this.status = { text: 'Вход', value: 3, color: 'red' }
+          }
+        } else if (st === 'OUT') {
+          this.items.APPRDATA[i].APRST = 'Выход'
+          if (this.status.value < 4) {
+            this.status = { text: 'Выход', value: 4, color: 'green' }
+          }
+        } else if (st === 'P') {
+          this.items.APPRDATA[i].APRST = 'Нет'
+          if (this.status.value < 5) {
+            this.status = { text: 'Нет', value: 5, color: 'red' }
+          }
         }
       }
+      this.card = [
+        { title: 'Состояние пропуска', value: this.items.ES_STATUS_T.DOSTX, color: 1 },
+        { title: 'Номер пропуска в SAP ERP', value: parseInt(this.items.DATA_CARD.DOKNR) },
+        { title: 'Документ удост. личность', value: this.items.DATA_CARD.ID_CARD_NUMB },
+        { title: 'ФИО', value: this.items.DATA_CARD.NAME_DRVR },
+        { title: 'Дата действия', value: `${this.M(this.items.DATA_CARD.VALID_DATE_FROM, 'YYYYMMDD').format('DD.MM.YYYY')} - ${this.M(this.items.DATA_CARD.VALID_DATE_TO, 'YYYYMMDD').format('DD.MM.YYYY')}` }
+      ]
+      this.hiUser = [
+        { title: 'ФИО', value: this.items.DATA_CARD.INIT_PNM },
+        { title: 'Должность', value: this.items.DATA_CARD.INIT_SNM },
+        { title: 'Подразделение', value: this.items.DATA_CARD.INIT_ONM }
+      ]
+      this.writeUser = [
+        { title: 'ФИО', value: this.items.DATA_CARD.AUTHOR_PNM },
+        { title: 'Должность', value: this.items.DATA_CARD.AUTHOR_SNM },
+        { title: 'Подразделение', value: this.items.DATA_CARD.AUTHOR_ONM }
+      ]
     }
-    this.card = [
-      { title: 'Состояние пропуска', value: this.items.ES_STATUS_T.DOSTX, color: 1 },
-      { title: 'Номер пропуска в SAP ERP', value: parseInt(this.items.DATA_CARD.DOKNR) },
-      { title: 'Документ удост. личность', value: this.items.DATA_CARD.ID_CARD_NUMB },
-      { title: 'ФИО', value: this.items.DATA_CARD.NAME_DRVR },
-      { title: 'Дата действия', value: `${this.M(this.items.DATA_CARD.VALID_DATE_FROM, 'YYYYMMDD').format('DD.MM.YYYY')} - ${this.M(this.items.DATA_CARD.VALID_DATE_TO, 'YYYYMMDD').format('DD.MM.YYYY')}` }
-    ]
-    this.hiUser = [
-      { title: 'ФИО', value: this.items.DATA_CARD.INIT_PNM },
-      { title: 'Должность', value: this.items.DATA_CARD.INIT_SNM },
-      { title: 'Подразделение', value: this.items.DATA_CARD.INIT_ONM }
-    ]
-    this.writeUser = [
-      { title: 'ФИО', value: this.items.DATA_CARD.AUTHOR_PNM },
-      { title: 'Должность', value: this.items.DATA_CARD.AUTHOR_SNM },
-      { title: 'Подразделение', value: this.items.DATA_CARD.AUTHOR_ONM }
-    ]
   }
-}</script>
+}
+</script>
 
 <style scoped>
   .nohover:hover {
