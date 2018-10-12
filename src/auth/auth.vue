@@ -54,6 +54,8 @@ export default {
       router.push({ path: this.redirPath })
     } else if (localStorage.getItem('jwt') !== null) {
       router.push({ path: this.redirPath })
+    } else {
+      this.$store.commit('navigation/exitButtonIsActive', false)
     }
   },
   methods: {

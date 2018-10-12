@@ -1,84 +1,87 @@
 <template>
-  <v-container fluid grid-list-xl>
-    <v-layout wrap align-center>
-      <v-flex xs12 d-flex>
-        <v-btn @click="$router.go(-1)" color="info">Назад</v-btn>
-      </v-flex>
-      <v-flex xs6 d-flex>
-        <v-card>
-          <div>Состояние пропуска: {{items.ES_STATUS_T.DOSTX}}</div>
-          <div>Номер пропуска в SAP ERP: {{items.DATA_CARD.DOKNR_int}}</div>
-          <div>Документ удост. личность: {{items.DATA_CARD.ID_CARD_NUMB}}</div>
-          <div>ФИО: {{items.DATA_CARD.NAME_DRVR}}</div>
-          <div>Дата действия:
-            {{M(items.DATA_CARD.VALID_DATE_FROM, 'YYYYMMDD').format('DD.MM.YYYY')}} -
-            {{M(items.DATA_CARD.VALID_DATE_TO, 'YYYYMMDD').format('DD.MM.YYYY')}}</div>
-        </v-card>
-      </v-flex>
-      <v-flex xs6 d-flex>
-        <v-container fluid grid-list-xl>
+  <span>
+    <v-toolbar>
+      <i class="material-icons">fingerprint</i>
+      <v-toolbar-title>Информация о пропуске <span v-if="!items.loading">(SAP ERP: № {{ parseInt(items.DATA_CARD.DOKNR) }}) {{status.text}}</span></v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn @click="$router.go(-1)" color="info" flat><i class="material-icons">arrow_back</i>Назад</v-btn>
+    </v-toolbar>
+    <v-container fluid grid-list-xl v-if="!items.loading">
+      <v-layout wrap align-start justify-center row fill-height>
+        <v-flex xs12 md4 d-flex>
           <v-layout wrap align-center>
-        <v-flex xs12 d-flex>
-          <h2>Информация об ответственных сотрудниках</h2>
-        </v-flex>
-        <v-flex xs6 d-flex>
-          <v-card>
-            <div>
-              <h3>Направляется к сотруднику</h3>
-            </div>
-            <div>
-              ФИО:
-              {{items.DATA_CARD.INIT_PNM}}
-            </div>
-            <div>
-              Должность:
-              {{items.DATA_CARD.INIT_SNM}}
-            </div>
-            <div>
-              Подразделение:
-              {{items.DATA_CARD.INIT_ONM}}
-            </div>
-          </v-card>
-        </v-flex>
-        <v-flex xs6 d-flex>
-          <v-card>
-            <div>
-              <h3>Пропуск введен сотрудником</h3>
-            </div>
-            <div>
-              ФИО:
-              {{items.DATA_CARD.AUTHOR_PNM}}
-            </div>
-            <div>
-              Должность:
-              {{items.DATA_CARD.AUTHOR_SNM}}
-            </div>
-            <div>
-              Подразделение:
-              {{items.DATA_CARD.AUTHOR_ONM}}
-            </div>
-          </v-card>
-        </v-flex>
+            <v-flex xs12 d-flex><h2>Информация о пропуске</h2></v-flex>
+            <v-flex xs12 d-flex>
+              <v-card align-left>
+                <v-data-table :items="card" hide-actions hide-headers>
+                  <template slot="items" slot-scope="props">
+                    <tr class="nohover">
+                      <td class="text-xs-left">{{ props.item.title }}</td>
+                      <td class="text-xs-left" >{{ props.item.value }}</td>
+                    </tr>
+                  </template>
+                </v-data-table>
+              </v-card>
+            </v-flex>
           </v-layout>
-        </v-container>
-      </v-flex>
-      <v-flex xs12 d-flex> <!-- таблица согласующих -->
-        <h2>Информация об отметке согласующими</h2>
-      </v-flex>
-      <v-flex xs12 d-flex>
-        <v-data-table :headers="headers"  :items="items.APPRDATA" hide-actions>
-          <template slot="items" slot-scope="props">
-            <tr>
-              <td class="text-xs-left">{{ props.item.APRST }}</td>
-              <td class="text-xs-left">{{ props.item.APRNAME_FULL }}</td>
-              <td class="text-xs-left">{{ props.item.CREATED_BY_NAME }}</td>
-              <td class="text-xs-left">{{ M(props.item.CREATED_ON + props.item.CREATED_TM, 'YYYYMMDDHHmmSS').format('DD.MM.YYYY HH:mm:SS') }}</td>
-            </tr>
-          </template>
-        </v-data-table>
-      </v-flex>
-    </v-layout>
-  </v-container>
+        </v-flex>
+        <v-flex xs12 md8 d-flex>
+          <v-layout wrap align-start justify-center row fill-height>
+            <v-flex xs12 d-flex>
+              <h2>Информация об ответственных сотрудниках</h2>
+            </v-flex>
+            <v-flex xs12 sm6 d-flex>
+              <v-card>
+                <div><h3>Направляется к сотруднику</h3></div>
+                <v-data-table :items="hiUser" hide-actions hide-headers>
+                  <template slot="items" slot-scope="props">
+                    <tr class="nohover">
+                      <td class="text-xs-left">{{ props.item.title }}</td>
+                      <td class="text-xs-left">{{ props.item.value }}</td>
+                    </tr>
+                  </template>
+                </v-data-table>
+              </v-card>
+            </v-flex>
+            <v-flex xs12 sm6 d-flex>
+              <v-card>
+                <div><h3>Пропуск введен сотрудником</h3></div>
+                <v-data-table :items="writeUser" hide-actions hide-headers>
+                  <template slot="items" slot-scope="props">
+                      <tr class="nohover">
+                      <td class="text-xs-left">{{ props.item.title }}</td>
+                      <td class="text-xs-left">{{ props.item.value }}</td>
+                    </tr>
+                  </template>
+                </v-data-table>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-flex>
+        <v-flex xs12 d-flex>
+          <v-expansion-panel>
+          <v-expansion-panel-content>
+            <div slot="header"><h3>Информация об отметке согласующими</h3></div>
+            <v-card>
+              <v-card-text>
+                <v-data-table :headers="headers"  :items="items.APPRDATA" hide-actions>
+                  <template slot="items" slot-scope="props">
+                    <tr class="nohover">
+                      <td class="text-xs-left">{{ props.item.APRST }}</td>
+                      <td class="text-xs-left">{{ props.item.APRNAME_FULL }}</td>
+                      <td class="text-xs-left">{{ props.item.CREATED_BY_NAME }}</td>
+                      <td class="text-xs-left">{{ M(props.item.CREATED_ON + props.item.CREATED_TM, 'YYYYMMDDHHmmSS').format('DD.MM.YYYY HH:mm:SS') }}</td>
+                    </tr>
+                  </template>
+                </v-data-table>
+              </v-card-text>
+            </v-card>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+        </v-flex>
+      </v-layout>
+    </v-container>
+  </span>
 </template>
 
 <script>
@@ -95,266 +98,66 @@ export default {
         { text: 'Имя создателя', value: '', sortable: false },
         { text: 'Дата и время создания', value: '', sortable: false }
       ],
-      items: {},
-      tmp: [{
-        RESULT: 'SUCCESS',
-        RESULT_TXT: 'SUCCESS',
-        RESULT_COLOR: 'GREEN',
-        NAME_TEXT: 'Технический Пользователь',
-        STATUS: '57',
-        DATA_CARD:
-          { MANDT: '100',
-            DOKAR: '000',
-            DOKNR: '0000000000005000000125144',
-            DOKVR: '00',
-            DOKTL: '000',
-            DOCTYPE: '5001',
-            DOC_CLASS: '003',
-            AUTO_MARKA: '',
-            AUTO_NOMER: '',
-            PRICEP_MARKA: '',
-            PRICEP_NOMER: '',
-            ID_CARD_NUMB: '743529',
-            NAME_DRVR: 'ДАНИЛОВ А.А.',
-            PHONE: '',
-            VALID_DATE_FROM: '20181008',
-            VALID_DATE_TO: '20181008',
-            ZRAZOVIY: 'X',
-            ZWAIT_RAZRESH: '',
-            ZPROPUSK: '',
-            INIT_OID: '50124880',
-            INIT_ONM: '1.РУКОВОДСТВО МЕДЕЭЛЕКТРОЛИТНОГО ПРОИЗВО',
-            INIT_PID: '11098751',
-            INIT_PNM: 'Огорелышев Сергей Владимирович',
-            INIT_SID: '00757483',
-            INIT_SNM: 'НАЧ-К МЕДЕЭЛЕКТРОЛИТНОГО ПРОИЗ-ВА-НАЧ.ЦЕ',
-            INIT_UID: 'OGOREL_SV',
-            INIT_UNM: 'Сергей Владимирович Огорелышев',
-            AUTHOR_OID: '00747803',
-            AUTHOR_ONM: '2.ЦЕХ ЭЛЕКТРОЛИЗА МЕДИ',
-            AUTHOR_PID: '11075104',
-            AUTHOR_PNM: 'Крижевских Оксана Сергеевна',
-            AUTHOR_SID: '00769159',
-            AUTHOR_SNM: 'СПЕЦИАЛИСТ ПО КАДРАМ',
-            AUTHOR_UID: 'KRIZHEV_OS',
-            AUTHOR_UNM: 'Оксана Сергеевна Крижевских',
-            ZTRANSP_COMP: '',
-            ZWAIT_INI: '',
-            ZFULLNAME_TRANSP: '',
-            ZDESCR_SMALL: '',
-            CREATED_BY: 'KRIZHEV_OS',
-            CREATED_ON: '20181005',
-            CREATED_TM: '113058',
-            CHANGED_BY: 'SUDAKOV_AB',
-            CHANGED_ON: '20181005',
-            CHANGED_TM: '152156',
-            WI_ID: '000000000000',
-            DELETE_FLAG: '',
-            LOGSYS: 'R3PCLNT100' },
-        ES_CARDD:
-          { MANDT: '100',
-            DOKAR: '000',
-            DOKNR: '0000000000005000000125144',
-            DOKVR: '00',
-            DOKTL: '000',
-            CARDNUM: '007105',
-            DOKST: '57',
-            PREAR: '',
-            PRENR: '',
-            PREVR: '',
-            PRETL: '',
-            BARCODE: '' },
-        ES_STATUS: { MANDT: '100', DOKST: '57', DOSAR: '' },
-        ES_STATUS_T:
-          { MANDT: '100',
-            DOKST: '57',
-            SPRAS: 'R',
-            STABK: '57',
-            DOSTX: 'Доступ разрешен' },
-        OBJECTLINKS: [],
-        DOCUMENTFILES: [],
-        DESCR_ALV:
-          [ { MODE: '',
-            DYNPRO: '0000',
-            FIELDNAME: 'ZDOK_TAB',
-            TABNAME: 'ZDF_ZDOK_007105',
-            DDTABNAME: 'ZDF_ZDOK_007105',
-            MAX_RECORD: '000000',
-            REF_TAB: [Array] } ],
-        TEXTDATA:
-          [ { SPRAS: 'R',
-            FIELDNAME: 'CARD_DESCRIPTION',
-            TDFORMAT: '',
-            TDLINE: 'ПРОПУСК' } ],
-        APPRDATA:
-          [ { FROMTEMPL: '',
-            EXPRESS: '',
-            APRST: '1',
-            WI_ID: '000000000000',
-            APPR_TMPL_ID: '',
-            MANUALLY_ADD: '',
-            SOFM_NOTE: '',
-            PROC_USER: '',
-            FIRST_PROC_DATE: '00000000',
-            FIRST_PROC_TIME: '000000',
-            PROC_DATE: '00000000',
-            PROC_TIME: '000000',
-            PROC_NAME_FULL: '',
-            CREATED_BY: 'OGOREL_SV',
-            CREATED_ON: '20181005',
-            CREATED_TM: '133241',
-            CREATED_BY_NAME: 'Сергей Владимирович Огорелышев',
-            APRROLE: 'AU',
-            APRTYPE: 'P',
-            APRNAME: '11075104',
-            BEGDATA: '00000000',
-            BEGTIME: '000000',
-            ENDDATA: '00000000',
-            ENDTIME: '000000',
-            APRNAME_FULL: 'Крижевских Оксана Сергеевна',
-            APPRQUEUE: '00',
-            APPRDAYS: '00',
-            APPRHOURS: '000',
-            PARENTAPRNR: '0000',
-            SOFM_TASK: '',
-            XDNUM: '' },
-          { FROMTEMPL: '',
-            EXPRESS: '',
-            APRST: '1',
-            WI_ID: '000000000000',
-            APPR_TMPL_ID: '',
-            MANUALLY_ADD: '',
-            SOFM_NOTE: '',
-            PROC_USER: '',
-            FIRST_PROC_DATE: '20181005',
-            FIRST_PROC_TIME: '133238',
-            PROC_DATE: '00000000',
-            PROC_TIME: '000000',
-            PROC_NAME_FULL: '',
-            CREATED_BY: 'OGOREL_SV',
-            CREATED_ON: '20181005',
-            CREATED_TM: '133241',
-            CREATED_BY_NAME: 'Сергей Владимирович Огорелышев',
-            APRROLE: 'IN',
-            APRTYPE: 'P',
-            APRNAME: '11098751',
-            BEGDATA: '00000000',
-            BEGTIME: '000000',
-            ENDDATA: '00000000',
-            ENDTIME: '000000',
-            APRNAME_FULL: 'Огорелышев Сергей Владимирович',
-            APPRQUEUE: '00',
-            APPRDAYS: '00',
-            APPRHOURS: '000',
-            PARENTAPRNR: '0000',
-            SOFM_TASK: '',
-            XDNUM: '' },
-          { FROMTEMPL: '',
-            EXPRESS: '',
-            APRST: 'P',
-            WI_ID: '000000000000',
-            APPR_TMPL_ID: '',
-            MANUALLY_ADD: '',
-            SOFM_NOTE: '',
-            PROC_USER: '',
-            FIRST_PROC_DATE: '00000000',
-            FIRST_PROC_TIME: '000000',
-            PROC_DATE: '00000000',
-            PROC_TIME: '000000',
-            PROC_NAME_FULL: '',
-            CREATED_BY: 'OGOREL_SV',
-            CREATED_ON: '20181005',
-            CREATED_TM: '133241',
-            CREATED_BY_NAME: 'Сергей Владимирович Огорелышев',
-            APRROLE: 'IW',
-            APRTYPE: 'P',
-            APRNAME: '11098751',
-            BEGDATA: '00000000',
-            BEGTIME: '000000',
-            ENDDATA: '00000000',
-            ENDTIME: '000000',
-            APRNAME_FULL: 'Огорелышев Сергей Владимирович',
-            APPRQUEUE: '00',
-            APPRDAYS: '00',
-            APPRHOURS: '000',
-            PARENTAPRNR: '0000',
-            SOFM_TASK: '',
-            XDNUM: '' },
-          { FROMTEMPL: '',
-            EXPRESS: '',
-            APRST: 'S',
-            WI_ID: '000000000000',
-            APPR_TMPL_ID: '',
-            MANUALLY_ADD: '',
-            SOFM_NOTE: '',
-            PROC_USER: '',
-            FIRST_PROC_DATE: '00000000',
-            FIRST_PROC_TIME: '000000',
-            PROC_DATE: '00000000',
-            PROC_TIME: '000000',
-            PROC_NAME_FULL: '',
-            CREATED_BY: 'OGOREL_SV',
-            CREATED_ON: '20181005',
-            CREATED_TM: '133241',
-            CREATED_BY_NAME: 'Сергей Владимирович Огорелышев',
-            APRROLE: 'MT',
-            APRTYPE: 'ZK',
-            APRNAME: '11002',
-            BEGDATA: '00000000',
-            BEGTIME: '000000',
-            ENDDATA: '00000000',
-            ENDTIME: '000000',
-            APRNAME_FULL: 'КПП №7 ЦЕНТРАЛЬНАЯ ПРОХОДНАЯ',
-            APPRQUEUE: '00',
-            APPRDAYS: '00',
-            APPRHOURS: '000',
-            PARENTAPRNR: '0000',
-            SOFM_TASK: '',
-            XDNUM: '' },
-          { FROMTEMPL: '',
-            EXPRESS: '',
-            APRST: '1',
-            WI_ID: '000000000000',
-            APPR_TMPL_ID: '',
-            MANUALLY_ADD: '',
-            SOFM_NOTE: '',
-            PROC_USER: '',
-            FIRST_PROC_DATE: '20181005',
-            FIRST_PROC_TIME: '152149',
-            PROC_DATE: '00000000',
-            PROC_TIME: '000000',
-            PROC_NAME_FULL: '',
-            CREATED_BY: 'SUDAKOV_AB',
-            CREATED_ON: '20181005',
-            CREATED_TM: '152156',
-            CREATED_BY_NAME: 'Алексей Борисович Судаков',
-            APRROLE: 'AG',
-            APRTYPE: 'P',
-            APRNAME: '11053856',
-            BEGDATA: '20181005',
-            BEGTIME: '000000',
-            ENDDATA: '20181008',
-            ENDTIME: '000000',
-            APRNAME_FULL: 'Судаков Алексей Борисович',
-            APPRQUEUE: '01',
-            APPRDAYS: '00',
-            APPRHOURS: '000',
-            PARENTAPRNR: '0000',
-            SOFM_TASK: '',
-            XDNUM: '' } ],
-        ACTIONS:
-          [ { ACTION: 'IN', DESCRIPTION: 'Отметить вход' },
-            { ACTION: 'RET', DESCRIPTION: 'На доработку' } ]
-      }]
+      items: { loading: true },
+      card: [],
+      hiUser: [],
+      writeUser: [],
+      status: { text: 'Согласован', value: 1 }
     }
   },
   async mounted () {
     this.items = (await axios.get(`${this.$config.api}/bydoknr?doknr=${this.$route.params.doknr}&kpp=${this.$route.params.kpp}`)).data
-    console.log(this.items[0].APPRDATA.APRST)
-    console.log(this.items)
+    for (let i = 0; i < this.items.APPRDATA.length; i++) {
+      let st = this.items.APPRDATA[i].APRST
+      if (st === '1') {
+        this.items.APPRDATA[i].APRST = 'Согласован'
+        if (this.status.value < 1) {
+          this.status = { text: 'Согласован', value: 1, color: 'red' }
+        }
+      } else if (st === 'S') {
+        this.items.APPRDATA[i].APRST = 'Согласование'
+        if (this.status.value < 2) {
+          this.status = { text: 'Согласование', value: 2, color: 'red' }
+        }
+      } else if (st === 'IN') {
+        this.items.APPRDATA[i].APRST = 'Вход'
+        if (this.status.value < 3) {
+          this.status = { text: 'Вход', value: 3, color: 'red' }
+        }
+      } else if (st === 'OUT') {
+        this.items.APPRDATA[i].APRST = 'Выход'
+        if (this.status.value < 4) {
+          this.status = { text: 'Выход', value: 4, color: 'green' }
+        }
+      } else if (st === 'P') {
+        this.items.APPRDATA[i].APRST = 'Нет'
+        if (this.status.value < 5) {
+          this.status = { text: 'Нет', value: 5, color: 'red' }
+        }
+      }
+    }
+    this.card = [
+      { title: 'Состояние пропуска', value: this.items.ES_STATUS_T.DOSTX, color: 1 },
+      { title: 'Номер пропуска в SAP ERP', value: parseInt(this.items.DATA_CARD.DOKNR) },
+      { title: 'Документ удост. личность', value: this.items.DATA_CARD.ID_CARD_NUMB },
+      { title: 'ФИО', value: this.items.DATA_CARD.NAME_DRVR },
+      { title: 'Дата действия', value: `${this.M(this.items.DATA_CARD.VALID_DATE_FROM, 'YYYYMMDD').format('DD.MM.YYYY')} - ${this.M(this.items.DATA_CARD.VALID_DATE_TO, 'YYYYMMDD').format('DD.MM.YYYY')}` }
+    ]
+    this.hiUser = [
+      { title: 'ФИО', value: this.items.DATA_CARD.INIT_PNM },
+      { title: 'Должность', value: this.items.DATA_CARD.INIT_SNM },
+      { title: 'Подразделение', value: this.items.DATA_CARD.INIT_ONM }
+    ]
+    this.writeUser = [
+      { title: 'ФИО', value: this.items.DATA_CARD.AUTHOR_PNM },
+      { title: 'Должность', value: this.items.DATA_CARD.AUTHOR_SNM },
+      { title: 'Подразделение', value: this.items.DATA_CARD.AUTHOR_ONM }
+    ]
   }
 }</script>
 
 <style scoped>
-
+  .nohover:hover {
+    background: white !important;
+  }
 </style>
