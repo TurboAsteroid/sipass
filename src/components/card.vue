@@ -105,6 +105,8 @@ export default {
       status: { text: 'Согласован', value: 1 }
     }
   },
+  created () {
+  },
   mounted () {
     this.getData()
   },
@@ -114,6 +116,7 @@ export default {
         this.items = (await axios.get(`${this.$config.api}/bydoknr?doknr=${this.$route.params.doknr}&kpp=${this.$route.params.kpp}`)).data
       }
       if (parseInt(this.$route.params.propusk) > 0) {
+        console.log(this.$route.params.propusk)
         this.items = (await axios.get(`${this.$config.api}/bycardid?propusk=${this.$route.params.propusk}`)).data
       }
       for (let i = 0; i < this.items.APPRDATA.length; i++) {
@@ -162,6 +165,17 @@ export default {
         { title: 'Должность', value: this.items.DATA_CARD.AUTHOR_SNM },
         { title: 'Подразделение', value: this.items.DATA_CARD.AUTHOR_ONM }
       ]
+    }
+  },
+  watch: {
+    '$route.params.doknr' (val, oldVal) {
+      this.getData()
+    },
+    '$route.params.kpp' (val, oldVal) {
+      this.getData()
+    },
+    '$route.params.propusk' (val, oldVal) {
+      this.getData()
     }
   }
 }

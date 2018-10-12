@@ -22,10 +22,12 @@ Vue.prototype.$config = {
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
-new Vue({
+const mainVueInstance = new Vue({
   el: '#app',
   router,
   store,
   components: { App },
   template: '<App/>'
 })
+
+export default mainVueInstance
