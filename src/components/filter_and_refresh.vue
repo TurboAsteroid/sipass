@@ -1,10 +1,10 @@
 <template>
     <v-layout wrap align-center fluid grid-list-xl>
-      <v-flex xs8 d-flex>
+      <v-flex xs10 d-flex>
         <v-select :items="kpps" label="Контрольно-пропускной пункт" v-model="kpp"/>
       </v-flex>
-      <v-flex xs4 d-flex>
-        <v-btn @click="$emit('refresh', kpp)" color="info"><i class="material-icons">refresh</i> Обновить</v-btn>
+      <v-flex xs2 d-flex>
+        <v-btn @click="$emit('refresh', kpp)" color="info" flat><i class="material-icons">refresh</i> Обновить</v-btn>
       </v-flex>
     </v-layout>
 </template>
