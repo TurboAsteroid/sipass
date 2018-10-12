@@ -5,14 +5,8 @@
       <v-toolbar-side-icon @click.native="drawer = !drawer"></v-toolbar-side-icon>
       <span class="title ml-3 mr-5">{{$appName}}<span v-if="$route.params.name !== undefined">: {{$route.params.name}}</span></span>
       <v-spacer></v-spacer>
-      <v-text-field
-        v-if="exitButtonIsActive"
-        solo-inverted
-        flat
-        label="Поиск пропуска"
-        prepend-icon="search"
-      ></v-text-field>
-      <v-btn flat @click="exit" v-if="exitButtonIsActive"><i class="material-icons">exit_to_app</i>&nbsp;Выход</v-btn>
+      <search v-if="exitButtonIsActive"/>
+      <v-btn flat @click="exit" v-if="exitButtonIsActive"  color="info"><i class="material-icons">exit_to_app</i>&nbsp;Выход</v-btn>
     </v-toolbar>
     <v-content>
       <v-container fluid>
@@ -27,10 +21,11 @@
 
 <script>
 import navigation from '@/components/navigation'
+import search from '@/components/search'
 import { mapGetters } from 'vuex'
 export default {
   name: 'App',
-  components: {navigation},
+  components: {navigation, search},
   data: () => ({
     drawer: null
   }),
