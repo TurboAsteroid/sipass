@@ -27,7 +27,8 @@ export default {
   name: 'App',
   components: {navigation, search},
   data: () => ({
-    drawer: null
+    drawer: null,
+    propusk: '0021529621'
   }),
   mounted () {
     if (localStorage.getItem('jwt') == null) {

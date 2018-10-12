@@ -20,6 +20,7 @@ let router = express.Router()
 require('./routes/auth')(app, config, router)
 require('./routes/all')(app, config, router)
 require('./routes/bydoknr')(app, config, router)
+require('./routes/bycardid')(app, config, router)
 
 app.use(router)
 module.exports = app

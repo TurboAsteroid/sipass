@@ -51,7 +51,7 @@ const router = new Router({
       }
     },
     {
-      path: '/card/:kpp/:doknr',
+      path: '/card/:kpp/:doknr/:propusk',
       name: 'card',
       component: card,
       meta: {
@@ -86,13 +86,8 @@ router.beforeEach((to, from, next) => {
         params: { nextUrl: to.fullPath }
       })
     } else {
-      let user = JSON.parse(localStorage.getItem('user'))
       if (to.matched.some(record => record.meta.isAdmin)) {
-        if (user.isAdmin === 1) {
-          next()
-        } else {
-          next({ name: 'auth' })
-        }
+        next({ name: 'auth' })
       } else {
         next()
       }
