@@ -1,5 +1,6 @@
 'use strict'
-const axios = require('axios')
+const fs = require('fs')
+const path = require('path')
 const mysql = require('mysql2/promise')
 const jwt = require('jsonwebtoken')
 module.exports = function (app, config, router) {
@@ -14,24 +15,12 @@ module.exports = function (app, config, router) {
       console.error(e)
     }
   }
-  router.get('/bycardid', async function (req, res) {
-    console.log(`https://sap-prx.ugmk.com:443/ummc/permit/main?propusk=${req.query.propusk}&sap-user=skud_uem&sap-password=sRec137K`)
-    let response = (await axios.get(`https://sap-prx.ugmk.com:443/ummc/permit/main`, {
-      params: {
-        propusk: req.query.propusk,
-        'sap-user': 'skud_uem',
-        'sap-password': 'sRec137K'
-      }
-    })
-    ).data
-    logger(response, 1, 1, req) // by propusk
-    console.log(response)
-    res.send(response)
+  router.get('/photobycardid', async function (req, res) {
+    const propusk = req.query.propusk
+    res.sendFile(path.join(__dirname, '../data/kindred.jpg'))
+
+    // logger(response, 1, 1, req) // by propusk
   })
 
   return router
 }
-// https://sap-prx.ugmk.com:443/ummc/permit/main?propusk=0021559927&sap-user=skud_uem&sap-password=sRec137K
-//         ckeckpoint: req.query.kpp,
-//         'sap-user': 'skud_uem',
-//         'sap-password': 'sRec137K'

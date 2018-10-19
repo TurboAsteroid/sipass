@@ -5,13 +5,15 @@ module.exports = function (app, config, router) {
     try {
       const connection = await mysql.createConnection(config.mariadb)
       await connection.execute(`INSERT INTO gs3.logs_auth(\`user\`, message, url) VALUES('${user}', '${message}', '${url}');`)
+      await connection.end()
     } catch (e) {
       console.error(e)
     }
   }
   router.all('*', async function (req, res, next) {
     if (
-      req.originalUrl === '/auth/login'
+      req.originalUrl === '/auth/login' ||
+      req.originalUrl === '/photobycardid'
     ) {
       await logger('guest', 'guest', '/auth/login')
       next()
