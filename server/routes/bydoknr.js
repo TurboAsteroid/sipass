@@ -9,6 +9,7 @@ module.exports = function (app, config, router) {
       const decoded = jwt.verify(token, config.jwtSecret)
       const connection = await mysql.createConnection(config.mariadb)
       await connection.execute(`INSERT INTO gs3.logs_get_data (json,\`user\`,ip,json_status,json_kpp_id, url) VALUES ('${JSON.stringify(json)}', '${decoded.login}', '${req.connection.remoteAddress}', '${jsonStatus}', '${jsonKppId}', '${req.originalUrl}');`)
+      await connection.end()
     } catch (e) {
       console.error(e)
     }

@@ -58,20 +58,26 @@ export default {
       this.kpp_filter_changed(kpp)
     },
     async open (doknr) {
-      let kpp = (await (this.items.filter(async item => item.DOKNR === doknr)))[0].KPP
+      let kpp = await (this.items.filter(item => item.DOKNR === doknr))
+      kpp = kpp[0].KPP
       this.$router.push({ name: 'card', params: { kpp: kpp, doknr: doknr, propusk: -1 } })
     }
   },
-  mounted () {
-    // this.refresh('Все')
-    // обновление каждые 30 секунд
-    setTimeout(this.refresh(this.selectedKpp), 30000)
+  async mounted () {
+    this.refresh(this.selectedKpp)
+    // do {
+    //   await delay(10000)
+    //   await this.refresh(this.selectedKpp)
+    // } while (1)
   },
   watch: {
     '$route.params.id' (val, oldVal) {
       this.refresh(this.selectedKpp)
     }
   }
+}
+function delay (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 </script>
 
