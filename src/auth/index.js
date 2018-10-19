@@ -1,4 +1,5 @@
 import axios from 'axios'
+import router from '@/router'
 export default {
   initAuth () {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('jwt')
@@ -7,7 +8,7 @@ export default {
     }, (error) => {
       console.log(error)
       localStorage.clear()
-      this.$router.push({ name: 'index' })
+      router.push({ name: 'index' })
       return Promise.reject(error)
     })
   }

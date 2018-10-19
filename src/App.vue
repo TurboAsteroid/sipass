@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-navigation-drawer app v-if="exitButtonIsActive" fixed clipped class="grey lighten-4" v-model="drawer"><navigation /></v-navigation-drawer>
-    <v-toolbar app absolute clipped-left>
+    <v-toolbar app clipped-left>
       <v-toolbar-side-icon @click.native="drawer = !drawer"></v-toolbar-side-icon>
       <span class="title ml-3 mr-5">{{$appName}}<span v-if="$route.params.name !== undefined">: {{$route.params.name}}</span></span>
       <v-spacer></v-spacer>

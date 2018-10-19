@@ -6,6 +6,7 @@
       <v-spacer></v-spacer>
       <v-btn @click="$router.go(-1)" color="info" flat><i class="material-icons">arrow_back</i>Назад</v-btn>
     </v-toolbar>
+    <img src="http://127.0.0.1:8686/photobycardid"/>
     <v-container fluid grid-list-xl v-if="!items.loading">
       <v-layout wrap align-start justify-center row fill-height>
         <v-flex xs12 md4 d-flex>
@@ -102,7 +103,8 @@ export default {
       card: [],
       hiUser: [],
       writeUser: [],
-      status: { text: 'Согласован', value: 1 }
+      status: { text: 'Согласован', value: 1 },
+      photobycardid: null
     }
   },
   created () {
@@ -112,6 +114,8 @@ export default {
   },
   methods: {
     async getData () {
+      this.photobycardid = (await axios.get(`${this.$config.api}/photobycardid`)).data
+      console.log(this.photobycardid)
       if (parseInt(this.$route.params.doknr) > 0) {
         this.items = (await axios.get(`${this.$config.api}/bydoknr?doknr=${this.$route.params.doknr}&kpp=${this.$route.params.kpp}`)).data
       }
@@ -169,9 +173,6 @@ export default {
   },
   watch: {
     '$route.params.doknr' (val, oldVal) {
-      this.getData()
-    },
-    '$route.params.kpp' (val, oldVal) {
       this.getData()
     },
     '$route.params.propusk' (val, oldVal) {
