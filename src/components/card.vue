@@ -89,6 +89,7 @@
         </v-expansion-panel>
         </v-flex>
       </v-layout>
+      <cardFiles :documentfiles="items.DOCUMENTFILES"/>
     </v-container>
   </span>
 </template>
@@ -96,8 +97,10 @@
 <script>
 import axios from 'axios'
 import moment from 'moment'
+import cardFiles from './card_files'
 export default {
   name: 'card',
+  components: {cardFiles},
   data () {
     return {
       M: moment,

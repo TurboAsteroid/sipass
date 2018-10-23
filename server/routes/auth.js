@@ -12,7 +12,7 @@ module.exports = function (app, config, router) {
   }
   router.all('*', async function (req, res, next) {
     if (
-      req.originalUrl === '/auth/login' || req.originalUrl === '/getallphotos'
+      req.originalUrl === '/auth/login' || req.originalUrl === '/getallphotos' || req.params[0] === '/filebyrecextidversion'
     ) {
       await logger('guest', 'guest', '/auth/login')
       next()
