@@ -12,14 +12,18 @@ module.exports = function (app, config, router) {
   }
   router.all('*', async function (req, res, next) {
     if (
-      req.originalUrl === '/auth/login' ||
-      req.originalUrl === '/photobycardid'
+      req.originalUrl === '/auth/login' || req.originalUrl === '/getallphotos'
     ) {
       await logger('guest', 'guest', '/auth/login')
       next()
-    } else if (req.headers.authorization !== undefined && req.headers.authorization !== null) {
+    } else if ((req.headers.authorization !== undefined && req.headers.authorization !== null) || (req.query.jwt !== undefined && req.query.jwt !== null)) {
       try {
-        const token = req.headers.authorization.replace(/Bearer /g, '')
+        let token = ''
+        if (req.query.jwt !== undefined && req.query.jwt !== null) {
+          token = req.query.jwt
+        } else {
+          token = req.headers.authorization.replace(/Bearer /g, '')
+        }
         const decoded = jwt.verify(token, config.jwtSecret)
         await logger(`${decoded.login}`, 'try login', req.originalUrl)
         ad.findUser(decoded.login, async function (err, user) {

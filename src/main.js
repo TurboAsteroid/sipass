@@ -11,7 +11,7 @@ import 'es6-promise/auto'
 import auth from '@/auth'
 auth.initAuth()
 Vue.prototype.$appName = 'Разовый пропуск'
-Vue.prototype.$appVersion = 'v3.r3'
+Vue.prototype.$appVersion = 'v3.r4'
 Vue.prototype.$globalUserData = {
   kpps: ['11002', '11008', 'Все']
 }

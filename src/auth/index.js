@@ -6,6 +6,9 @@ export default {
     axios.interceptors.response.use((response) => {
       return Promise.resolve(response)
     }, (error) => {
+      if (error.request.status === 404) {
+        return Promise.resolve(404)
+      }
       console.log(error)
       localStorage.clear()
       router.push({ name: 'index' })

@@ -1,5 +1,4 @@
 'use strict'
-const fs = require('fs')
 const path = require('path')
 const mysql = require('mysql2/promise')
 const jwt = require('jsonwebtoken')
@@ -17,8 +16,15 @@ module.exports = function (app, config, router) {
   }
   router.get('/photobycardid', async function (req, res) {
     const propusk = req.query.propusk
-    res.sendFile(path.join(__dirname, '../data/kindred.jpg'))
-
+    try {
+      if (propusk !== undefined && propusk !== null) {
+        res.sendFile(path.join(__dirname, `../data/${propusk}.jpg`))
+      } else {
+        res.sendFile(path.join(__dirname, '../data/kindred.jpg'))
+      }
+    } catch (e) {
+      console.log(e)
+    }
     // logger(response, 1, 1, req) // by propusk
   })
 

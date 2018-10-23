@@ -2,60 +2,68 @@
   <span>
     <v-toolbar>
       <i class="material-icons">fingerprint</i>
-      <v-toolbar-title>Информация о пропуске <span v-if="!items.loading">(SAP ERP: № {{ parseInt(items.DATA_CARD.DOKNR) }}) {{status.text}}</span></v-toolbar-title>
+      <v-toolbar-title>Информация о пропуске <span v-if="!items.loading">(SAP ERP: № {{ parseInt(items.DATA_CARD.DOKNR) }})</span></v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn @click="$router.go(-1)" color="info" flat><i class="material-icons">arrow_back</i>Назад</v-btn>
     </v-toolbar>
-    <img src="http://127.0.0.1:8686/photobycardid"/>
     <v-container fluid grid-list-xl v-if="!items.loading">
-      <v-layout wrap align-start justify-center row fill-height>
-        <v-flex xs12 md4 d-flex>
-          <v-layout wrap align-center>
-            <v-flex xs12 d-flex><h2>Информация о пропуске</h2></v-flex>
-            <v-flex xs12 d-flex>
-              <v-card align-left>
-                <v-data-table :items="card" hide-actions hide-headers>
-                  <template slot="items" slot-scope="props">
-                    <tr class="nohover">
-                      <td class="text-xs-left">{{ props.item.title }}</td>
-                      <td class="text-xs-left" >{{ props.item.value }}</td>
-                    </tr>
-                  </template>
-                </v-data-table>
-              </v-card>
-            </v-flex>
-          </v-layout>
+      <v-layout wrap align-start justify-start row fill-height>
+        <v-flex xs12 md3 d-flex>
+          <div v-if="photobycardid !== ''">
+             <img :src="photobycardid" class="tt">
+          </div>
         </v-flex>
-        <v-flex xs12 md8 d-flex>
-          <v-layout wrap align-start justify-center row fill-height>
-            <v-flex xs12 d-flex>
-              <h2>Информация об ответственных сотрудниках</h2>
+        <v-flex xs12 md9 d-flex style="margin-top: 12px;">
+          <v-layout wrap align-start justify-start row fill-height>
+            <v-flex xs12 md12 d-flex :style="{background: status.color}" class="tt">
+              <v-layout wrap align-center>
+                <v-flex xs12 d-flex><h2>Информация о пропуске: {{status.text}}</h2></v-flex>
+                <v-flex xs12 d-flex>
+                  <v-card align-left>
+                    <v-data-table :items="card" hide-actions hide-headers>
+                      <template slot="items" slot-scope="props">
+                        <tr class="nohover">
+                          <td class="text-xs-left">{{ props.item.title }}</td>
+                          <td class="text-xs-left" >{{ props.item.value }}</td>
+                        </tr>
+                      </template>
+                    </v-data-table>
+                  </v-card>
+                </v-flex>
+              </v-layout>
             </v-flex>
-            <v-flex xs12 sm6 d-flex>
-              <v-card>
-                <div><h3>Направляется к сотруднику</h3></div>
-                <v-data-table :items="hiUser" hide-actions hide-headers>
-                  <template slot="items" slot-scope="props">
-                    <tr class="nohover">
-                      <td class="text-xs-left">{{ props.item.title }}</td>
-                      <td class="text-xs-left">{{ props.item.value }}</td>
-                    </tr>
-                  </template>
-                </v-data-table>
-              </v-card>
-            </v-flex>
-            <v-flex xs12 sm6 d-flex>
-              <v-card>
-                <div><h3>Пропуск введен сотрудником</h3></div>
-                <v-data-table :items="writeUser" hide-actions hide-headers>
-                  <template slot="items" slot-scope="props">
-                      <tr class="nohover">
-                      <td class="text-xs-left">{{ props.item.title }}</td>
-                      <td class="text-xs-left">{{ props.item.value }}</td>
-                    </tr>
-                  </template>
-                </v-data-table>
-              </v-card>
+            <v-flex xs12 md12 d-flex>
+              <v-layout wrap align-start justify-center row fill-height>
+                <v-flex xs12 d-flex>
+                  <h2>Информация об ответственных сотрудниках</h2>
+                </v-flex>
+                <v-flex xs12 sm6 d-flex>
+                  <v-card>
+                    <div><h3>Направляется к сотруднику</h3></div>
+                    <v-data-table :items="hiUser" hide-actions hide-headers>
+                      <template slot="items" slot-scope="props">
+                        <tr class="nohover">
+                          <td class="text-xs-left">{{ props.item.title }}</td>
+                          <td class="text-xs-left">{{ props.item.value }}</td>
+                        </tr>
+                      </template>
+                    </v-data-table>
+                  </v-card>
+                </v-flex>
+                <v-flex xs12 sm6 d-flex>
+                  <v-card>
+                    <div><h3>Пропуск введен сотрудником</h3></div>
+                    <v-data-table :items="writeUser" hide-actions hide-headers>
+                      <template slot="items" slot-scope="props">
+                          <tr class="nohover">
+                          <td class="text-xs-left">{{ props.item.title }}</td>
+                          <td class="text-xs-left">{{ props.item.value }}</td>
+                        </tr>
+                      </template>
+                    </v-data-table>
+                  </v-card>
+                </v-flex>
+              </v-layout>
             </v-flex>
           </v-layout>
         </v-flex>
@@ -104,7 +112,7 @@ export default {
       hiUser: [],
       writeUser: [],
       status: { text: 'Согласован', value: 1 },
-      photobycardid: null
+      photobycardid: ''
     }
   },
   created () {
@@ -114,41 +122,43 @@ export default {
   },
   methods: {
     async getData () {
-      this.photobycardid = (await axios.get(`${this.$config.api}/photobycardid`)).data
-      console.log(this.photobycardid)
       if (parseInt(this.$route.params.doknr) > 0) {
         this.items = (await axios.get(`${this.$config.api}/bydoknr?doknr=${this.$route.params.doknr}&kpp=${this.$route.params.kpp}`)).data
       }
       if (parseInt(this.$route.params.propusk) > 0) {
-        console.log(this.$route.params.propusk)
         this.items = (await axios.get(`${this.$config.api}/bycardid?propusk=${this.$route.params.propusk}`)).data
+      }
+      if (this.items.DATA_CARD.ZPROPUSK !== undefined && this.items.DATA_CARD.ZPROPUSK !== null && this.items.DATA_CARD.ZPROPUSK !== '') {
+        this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}&propusk=${this.items.DATA_CARD.ZPROPUSK}`
+      } else {
+        this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}`
       }
       for (let i = 0; i < this.items.APPRDATA.length; i++) {
         let st = this.items.APPRDATA[i].APRST
         if (st === '1') {
           this.items.APPRDATA[i].APRST = 'Согласован'
           if (this.status.value < 1) {
-            this.status = { text: 'Согласован', value: 1, color: 'red' }
+            this.status = { text: 'согласован', value: 1, color: 'red' }
           }
         } else if (st === 'S') {
           this.items.APPRDATA[i].APRST = 'Согласование'
           if (this.status.value < 2) {
-            this.status = { text: 'Согласование', value: 2, color: 'red' }
+            this.status = { text: 'согласование', value: 2, color: 'red' }
           }
         } else if (st === 'IN') {
           this.items.APPRDATA[i].APRST = 'Вход'
           if (this.status.value < 3) {
-            this.status = { text: 'Вход', value: 3, color: 'red' }
+            this.status = { text: 'отметка вход', value: 3, color: 'red' }
           }
         } else if (st === 'OUT') {
           this.items.APPRDATA[i].APRST = 'Выход'
           if (this.status.value < 4) {
-            this.status = { text: 'Выход', value: 4, color: 'green' }
+            this.status = { text: 'отметка выход', value: 4, color: 'green' }
           }
         } else if (st === 'P') {
           this.items.APPRDATA[i].APRST = 'Нет'
           if (this.status.value < 5) {
-            this.status = { text: 'Нет', value: 5, color: 'red' }
+            this.status = { text: 'нет отметки', value: 5, color: 'red' }
           }
         }
       }
@@ -185,5 +195,14 @@ export default {
 <style scoped>
   .nohover:hover {
     background: white !important;
+  }
+  img {
+    max-width: 100%;
+    max-height: 550px;
+  }
+  .tt {
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    color: whitesmoke;
   }
 </style>
