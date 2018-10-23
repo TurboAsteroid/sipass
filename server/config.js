@@ -16,5 +16,16 @@ module.exports = {
     username: 'gs2@elem.ru',
     password: 'gs2-1'
   },
-  'jwtSecret': 'iasnmdflkiudj9)*&89079q234rhw^(912683764-907HHHuashdfoiuaostd'
+  jwtSecret: 'iasnmdflkiudj9)*&89079q234rhw^(912683764-907HHHuashdfoiuaostd',
+  configSiPass: {
+    'user': 'ITuser',
+    'password': '1c*b3G3525f-',
+    'server': '10.10.4.203',
+    'database': 'asco4',
+    'requestTimeout': 30000,
+    'connectionTimeout': 30000,
+    'options': {
+      'encrypt': false
+    }
+  }
 }

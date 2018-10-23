@@ -34,6 +34,11 @@ export default {
         this.prp = ''
       }
     }
+  },
+  watch: {
+    prp: function (v, ov) {
+      this.inp(v)
+    }
   }
 }
 function getRandomInt (min, max) {

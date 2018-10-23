@@ -5,7 +5,7 @@
         <far :kpps="kpps" @kpp_filter_changed="kpp_filter_changed" @refresh="refresh"/>
       </v-flex>
       <v-flex xs12 d-flex>
-        <v-data-table :headers="headers" :items="showed" hide-actions>
+        <v-data-table :headers="headers" :items="showed" hide-actions :loading="loading">
           <template slot="items" slot-scope="props">
             <tr @click="open(props.item.DOKNR)">
               <td class="text-xs-left">{{ parseInt(props.item.DOKNR) }}</td>
@@ -30,6 +30,7 @@ export default {
   components: { far },
   data () {
     return {
+      loading: false,
       kpps: this.$globalUserData.kpps, // тут надо будет переделывать на нормальные названия
       M: moment,
       items: [],
@@ -54,8 +55,10 @@ export default {
       }
     },
     async refresh (kpp) {
+      this.loading = true
       this.items = (await axios.get(`${this.$config.api}/all${this.$route.params.id}`)).data
       this.kpp_filter_changed(kpp)
+      this.loading = false
     },
     async open (doknr) {
       let kpp = await (this.items.filter(item => item.DOKNR === doknr))
