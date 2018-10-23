@@ -1,8 +1,4 @@
 module.exports = {
-  /* 'dbHost' : 'localhost',
-    'dbDatabase' : 'alertnotification',
-    'dbUser': 'alnot',
-    'dbPassword': 'df734##12iiRR2==-', */
   mariadb: {
     host: '10.1.255.208',
     port: '3333',
