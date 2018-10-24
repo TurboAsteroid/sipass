@@ -7,6 +7,8 @@
       <v-btn @click="$router.go(-1)" color="info" flat><i class="material-icons">arrow_back</i>Назад</v-btn>
     </v-toolbar>
     <v-container fluid grid-list-xl v-if="!items.loading">
+      <provideApass v-if="items.STATUS === '57'"/><!-- включаем выдачу пропуска для согласованных пропусков-->
+      <!--<cardFiles :documentfiles="items.DOCUMENTFILES"/>-->
       <v-layout wrap align-start justify-start row fill-height>
         <v-flex xs12 md3 d-flex>
           <div v-if="photobycardid !== ''">
@@ -15,9 +17,9 @@
         </v-flex>
         <v-flex xs12 md9 d-flex style="margin-top: 12px;">
           <v-layout wrap align-start justify-start row fill-height>
-            <v-flex xs12 md12 d-flex :style="{background: status.color}" class="tt">
+            <v-flex xs12 md12 d-flex :style="{background: status.color}" :class="{tt: status.color, tt2: status.color === undefined}">
               <v-layout wrap align-center>
-                <v-flex xs12 d-flex><h2>Информация о пропуске: {{status.text}}</h2></v-flex>
+                <v-flex xs12 d-flex><h2>Информация о пропуске<span v-if="status.color">: {{status.text}}</span></h2></v-flex>
                 <v-flex xs12 d-flex>
                   <v-card align-left>
                     <v-data-table :items="card" hide-actions hide-headers>
@@ -68,28 +70,10 @@
           </v-layout>
         </v-flex>
         <v-flex xs12 d-flex>
-          <v-expansion-panel>
-          <v-expansion-panel-content>
-            <div slot="header"><h3>Информация об отметке согласующими</h3></div>
-            <v-card>
-              <v-card-text>
-                <v-data-table :headers="headers"  :items="items.APPRDATA" hide-actions>
-                  <template slot="items" slot-scope="props">
-                    <tr class="nohover">
-                      <td class="text-xs-left">{{ props.item.APRST }}</td>
-                      <td class="text-xs-left">{{ props.item.APRNAME_FULL }}</td>
-                      <td class="text-xs-left">{{ props.item.CREATED_BY_NAME }}</td>
-                      <td class="text-xs-left">{{ M(props.item.CREATED_ON + props.item.CREATED_TM, 'YYYYMMDDHHmmSS').format('DD.MM.YYYY HH:mm:SS') }}</td>
-                    </tr>
-                  </template>
-                </v-data-table>
-              </v-card-text>
-            </v-card>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
+          <approveUsersList :items="items" :headers="headers"/>
         </v-flex>
       </v-layout>
-      <cardFiles :documentfiles="items.DOCUMENTFILES"/>
+      <cardFiles :documentfiles="items.DOCUMENTFILES"  v-if="items.DOCUMENTFILES.length > 0"/>
     </v-container>
   </span>
 </template>
@@ -98,9 +82,11 @@
 import axios from 'axios'
 import moment from 'moment'
 import cardFiles from './card_files'
+import provideApass from './provide_a_pass'
+import approveUsersList from './approve_users_list'
 export default {
   name: 'card',
-  components: {cardFiles},
+  components: {approveUsersList, cardFiles, provideApass},
   data () {
     return {
       M: moment,
@@ -114,7 +100,7 @@ export default {
       card: [],
       hiUser: [],
       writeUser: [],
-      status: { text: 'Согласован', value: 1 },
+      status: { text: '', value: 1 },
       photobycardid: ''
     }
   },
@@ -138,32 +124,61 @@ export default {
       }
       for (let i = 0; i < this.items.APPRDATA.length; i++) {
         let st = this.items.APPRDATA[i].APRST
-        if (st === '1') {
-          this.items.APPRDATA[i].APRST = 'Согласован'
-          if (this.status.value < 1) {
-            this.status = { text: 'согласован', value: 1, color: 'red' }
+        if (this.items.STATUS === '53') {
+          if (st === '1') {
+            this.items.APPRDATA[i].APRST = 'Согласован'
+            if (this.status.value < 1) {
+              this.status = { text: 'согласован', value: 1, color: 'red' }
+            }
+          } else if (st === 'S') {
+            this.items.APPRDATA[i].APRST = 'Согласование'
+            if (this.status.value < 2) {
+              this.status = { text: 'согласование', value: 2, color: 'red' }
+            }
+          } else if (st === 'IN') {
+            this.items.APPRDATA[i].APRST = 'Вход'
+            if (this.status.value < 3) {
+              this.status = { text: 'отметка вход', value: 3, color: 'red' }
+            }
+          } else if (st === 'OUT') {
+            this.items.APPRDATA[i].APRST = 'Выход'
+            if (this.status.value < 4) {
+              this.status = { text: 'отметка выход', value: 4, color: 'green' }
+            }
+          } else if (st === 'P') {
+            this.items.APPRDATA[i].APRST = 'Нет'
+            if (this.status.value < 5) {
+              this.status = { text: 'нет отметки', value: 5, color: 'red' }
+            }
           }
-        } else if (st === 'S') {
-          this.items.APPRDATA[i].APRST = 'Согласование'
-          if (this.status.value < 2) {
-            this.status = { text: 'согласование', value: 2, color: 'red' }
-          }
-        } else if (st === 'IN') {
-          this.items.APPRDATA[i].APRST = 'Вход'
-          if (this.status.value < 3) {
-            this.status = { text: 'отметка вход', value: 3, color: 'red' }
-          }
-        } else if (st === 'OUT') {
-          this.items.APPRDATA[i].APRST = 'Выход'
-          if (this.status.value < 4) {
-            this.status = { text: 'отметка выход', value: 4, color: 'green' }
-          }
-        } else if (st === 'P') {
-          this.items.APPRDATA[i].APRST = 'Нет'
-          if (this.status.value < 5) {
-            this.status = { text: 'нет отметки', value: 5, color: 'red' }
-          }
-        }
+        } // else {
+        //   if (st === '1') {
+        //     this.items.APPRDATA[i].APRST = 'Согласован'
+        //     if (this.status.value < 1) {
+        //       this.status = { text: 'согласован', value: 1, color: 'black' }
+        //     }
+        //   } else if (st === 'S') {
+        //     this.items.APPRDATA[i].APRST = 'Согласование'
+        //     if (this.status.value < 2) {
+        //       this.status = { text: 'согласование', value: 2, color: 'black' }
+        //     }
+        //   } else if (st === 'IN') {
+        //     this.items.APPRDATA[i].APRST = 'Вход'
+        //     if (this.status.value < 3) {
+        //       this.status = { text: 'отметка вход', value: 3, color: 'black' }
+        //     }
+        //   } else if (st === 'OUT') {
+        //     this.items.APPRDATA[i].APRST = 'Выход'
+        //     if (this.status.value < 4) {
+        //       this.status = { text: 'отметка выход', value: 4, color: 'black' }
+        //     }
+        //   } else if (st === 'P') {
+        //     this.items.APPRDATA[i].APRST = 'Нет'
+        //     if (this.status.value < 5) {
+        //       this.status = { text: 'нет отметки', value: 5, color: 'black' }
+        //     }
+        //   }
+        // }
       }
       this.card = [
         { title: 'Состояние пропуска', value: this.items.ES_STATUS_T.DOSTX, color: 1 },
@@ -207,5 +222,9 @@ export default {
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0,0,0,0.5);
     color: whitesmoke;
+  }
+  .tt2 {
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
   }
 </style>
