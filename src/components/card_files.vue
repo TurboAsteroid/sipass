@@ -1,5 +1,5 @@
 <template>
-  <span v-if="documentfiles.length > 0">
+  <span>
     <h3>Прикрепленные файлы:</h3>
     <v-list class="grey lighten-3">
       <v-list-tile

@@ -6,7 +6,7 @@
     :input="inp"
     :autofocus="true"
     class="main"
-    placeholder="Кликните сюда и считайте пропуск"
+    placeholder="Кликните сюда и считайте карту"
     v-on:focusout="inp('focusout')"
     @keydown.enter="inp"
   />
