@@ -23,6 +23,7 @@ require('./routes/bydoknr')(app, config, router)
 require('./routes/bycardid')(app, config, router)
 require('./routes/photobycardid')(app, config, router)
 require('./routes/filebyrecextidversion')(app, config, router)
+require('./routes/attachfiles')(app, config, router)
 require('./getallphotos')(app, config, router)
 app.use(router)
 module.exports = app
