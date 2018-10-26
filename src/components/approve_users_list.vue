@@ -4,7 +4,7 @@
       <div slot="header"><h3>Информация об отметке согласующими</h3></div>
       <v-card>
         <v-card-text>
-          <v-data-table :headers="headers"  :items="items.APPRDATA" hide-actions>
+          <v-data-table :headers="headers"  :items="doc.APPRDATA" hide-actions>
             <template slot="items" slot-scope="props">
               <tr class="nohover">
                 <td class="text-xs-left">{{ props.item.APRST }}</td>
@@ -24,7 +24,7 @@
 import moment from 'moment'
 export default {
   name: 'approve_users_list',
-  props: ['items', 'headers'],
+  props: ['doc', 'headers'],
   data () {
     return {
       M: moment
