@@ -1,6 +1,6 @@
 <template>
   <span>
-    <h3>Прикрепленные файлы:</h3>
+    <h3>Прикрепленные файлы:<span v-if="documentfiles.length < 1"> отсутствуют</span></h3>
     <v-list class="grey lighten-3">
       <v-list-tile
         v-for="item in documentfiles"

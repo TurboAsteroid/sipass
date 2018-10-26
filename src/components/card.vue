@@ -7,7 +7,7 @@
       <v-btn @click="$router.go(-1)" color="info" flat><i class="material-icons">arrow_back</i>Назад</v-btn>
     </v-toolbar>
     <v-container fluid grid-list-xl v-if="!items.loading">
-      <provideApass v-if="items.STATUS === '57'"/><!-- включаем выдачу пропуска для согласованных пропусков-->
+      <provideApass v-if="items.STATUS === '57'" :doc="items"/><!-- включаем выдачу пропуска для согласованных пропусков-->
       <!--<cardFiles :documentfiles="items.DOCUMENTFILES"/>-->
       <v-layout wrap align-start justify-start row fill-height>
         <v-flex xs12 md3 d-flex>
@@ -70,10 +70,10 @@
           </v-layout>
         </v-flex>
         <v-flex xs12 d-flex>
-          <approveUsersList :items="items" :headers="headers"/>
+          <approveUsersList :doc="items" :headers="headers"/>
         </v-flex>
       </v-layout>
-      <cardFiles :documentfiles="items.DOCUMENTFILES"  v-if="items.DOCUMENTFILES.length > 0"/>
+      <cardFiles :documentfiles="items.DOCUMENTFILES"/>
     </v-container>
   </span>
 </template>
@@ -151,34 +151,34 @@ export default {
               this.status = { text: 'нет отметки', value: 5, color: 'red' }
             }
           }
-        } // else {
-        //   if (st === '1') {
-        //     this.items.APPRDATA[i].APRST = 'Согласован'
-        //     if (this.status.value < 1) {
-        //       this.status = { text: 'согласован', value: 1, color: 'black' }
-        //     }
-        //   } else if (st === 'S') {
-        //     this.items.APPRDATA[i].APRST = 'Согласование'
-        //     if (this.status.value < 2) {
-        //       this.status = { text: 'согласование', value: 2, color: 'black' }
-        //     }
-        //   } else if (st === 'IN') {
-        //     this.items.APPRDATA[i].APRST = 'Вход'
-        //     if (this.status.value < 3) {
-        //       this.status = { text: 'отметка вход', value: 3, color: 'black' }
-        //     }
-        //   } else if (st === 'OUT') {
-        //     this.items.APPRDATA[i].APRST = 'Выход'
-        //     if (this.status.value < 4) {
-        //       this.status = { text: 'отметка выход', value: 4, color: 'black' }
-        //     }
-        //   } else if (st === 'P') {
-        //     this.items.APPRDATA[i].APRST = 'Нет'
-        //     if (this.status.value < 5) {
-        //       this.status = { text: 'нет отметки', value: 5, color: 'black' }
-        //     }
-        //   }
-        // }
+        } else {
+          if (st === '1') {
+            this.items.APPRDATA[i].APRST = 'Согласован'
+            if (this.status.value < 1) {
+              this.status = { text: 'согласован', value: 1 }
+            }
+          } else if (st === 'S') {
+            this.items.APPRDATA[i].APRST = 'Согласование'
+            if (this.status.value < 2) {
+              this.status = { text: 'согласование', value: 2 }
+            }
+          } else if (st === 'IN') {
+            this.items.APPRDATA[i].APRST = 'Вход'
+            if (this.status.value < 3) {
+              this.status = { text: 'отметка вход', value: 3 }
+            }
+          } else if (st === 'OUT') {
+            this.items.APPRDATA[i].APRST = 'Выход'
+            if (this.status.value < 4) {
+              this.status = { text: 'отметка выход', value: 4 }
+            }
+          } else if (st === 'P') {
+            this.items.APPRDATA[i].APRST = 'Нет'
+            if (this.status.value < 5) {
+              this.status = { text: 'нет отметки', value: 5 }
+            }
+          }
+        }
       }
       this.card = [
         { title: 'Состояние пропуска', value: this.items.ES_STATUS_T.DOSTX, color: 1 },
