@@ -2,13 +2,14 @@
 const path = require('path')
 const mysql = require('mysql2/promise')
 const jwt = require('jsonwebtoken')
+const fs = require('fs')
 module.exports = function (app, config, router) {
-  async function logger (json, jsonStatus, jsonKppId, req) {
+  async function logger (req) {
     try {
-      const token = req.headers.authorization.replace(/Bearer /g, '')
-      const decoded = jwt.verify(token, config.jwtSecret)
+      const decoded = jwt.verify(req.query.jwt, config.jwtSecret)
       const connection = await mysql.createConnection(config.mariadb)
-      await connection.execute(`INSERT INTO gs3.logs_get_data (json,\`user\`,ip,json_status,json_kpp_id, url) VALUES ('${JSON.stringify(json)}', '${decoded.login}', '${req.connection.remoteAddress}', '${jsonStatus}', '${jsonKppId}', '${req.originalUrl}');`)
+      req.query.propusk = -1
+      await connection.execute(`INSERT INTO gs3.logs_photo (propusk,\`user\`,ip) VALUES ('${req.query.propusk}', '${decoded.login}', '${req.connection.remoteAddress}');`)
       await connection.end()
     } catch (e) {
       console.error(e)
@@ -18,10 +19,15 @@ module.exports = function (app, config, router) {
     const propusk = req.query.propusk
     try {
       if (propusk !== undefined && propusk !== null) {
-        res.sendFile(path.join(__dirname, `../data/${propusk}.jpg`))
+        if (fs.existsSync(path.join(__dirname, `../data/${propusk}.jpg`))) {
+          res.sendFile(path.join(__dirname, `../data/${propusk}.jpg`))
+        } else {
+          res.sendFile(path.join(__dirname, '../data/default.jpg'))
+        }
       } else {
         res.sendFile(path.join(__dirname, '../data/default.jpg'))
       }
+      logger(req)
     } catch (e) {
       console.log(e)
     }
