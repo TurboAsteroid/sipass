@@ -14,7 +14,7 @@
 
 <script>
 export default {
-  name: 'search2',
+  name: 'search',
   data () {
     return {
       prp: ''
@@ -57,5 +57,6 @@ function getRandomInt (min, max) {
   border-radius: 5px;
   box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
   background-color: rgba(255,255,255,0.75);
+  text-indent: 10px;
 }
 </style>

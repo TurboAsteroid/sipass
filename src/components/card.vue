@@ -6,9 +6,9 @@
       <v-spacer></v-spacer>
       <v-btn @click="$router.go(-1)" color="info" flat><i class="material-icons">arrow_back</i>Назад</v-btn>
     </v-toolbar>
+    <v-progress-linear :indeterminate="true" v-if="items.loading"></v-progress-linear>
     <v-container fluid grid-list-xl v-if="!items.loading">
-      <provideApass v-if="items.STATUS === '57'" :doc="items"/><!-- включаем выдачу пропуска для согласованных пропусков-->
-      <!--<cardFiles :documentfiles="items.DOCUMENTFILES"/>-->
+      <provideApass v-if="items.STATUS === '57'" :doc="items" :objkey="objkey"/><!-- включаем выдачу пропуска для согласованных пропусков-->
       <v-layout wrap align-start justify-start row fill-height>
         <v-flex xs12 md3 d-flex>
           <div v-if="photobycardid !== ''">
@@ -101,102 +101,113 @@ export default {
       hiUser: [],
       writeUser: [],
       status: { text: '', value: 1 },
-      photobycardid: ''
+      photobycardid: '',
+      objkey: ''
     }
   },
-  created () {
-  },
-  mounted () {
-    this.getData()
+  async mounted () {
+    await this.getData()
+    if (this.items.RESULT === 'CARD_NOT_FOUND') {
+      this.$router.push('/404')
+    }
   },
   methods: {
     async getData () {
+      let flag404 = false
       if (parseInt(this.$route.params.doknr) > 0) {
         this.items = (await axios.get(`${this.$config.api}/bydoknr?doknr=${this.$route.params.doknr}&kpp=${this.$route.params.kpp}`)).data
-      }
-      if (parseInt(this.$route.params.propusk) > 0) {
+      } else if (parseInt(this.$route.params.propusk) > 0) {
         this.items = (await axios.get(`${this.$config.api}/bycardid?propusk=${this.$route.params.propusk}`)).data
-      }
-      if (this.items.DATA_CARD.ZPROPUSK !== undefined && this.items.DATA_CARD.ZPROPUSK !== null && this.items.DATA_CARD.ZPROPUSK !== '') {
-        this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}&propusk=${this.items.DATA_CARD.ZPROPUSK}`
       } else {
-        this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}`
+        this.$router.push('/404')
+        flag404 = true
       }
-      for (let i = 0; i < this.items.APPRDATA.length; i++) {
-        let st = this.items.APPRDATA[i].APRST
-        if (this.items.STATUS === '53') {
-          if (st === '1') {
-            this.items.APPRDATA[i].APRST = 'Согласован'
-            if (this.status.value < 1) {
-              this.status = { text: 'согласован', value: 1, color: 'red' }
-            }
-          } else if (st === 'S') {
-            this.items.APPRDATA[i].APRST = 'Согласование'
-            if (this.status.value < 2) {
-              this.status = { text: 'согласование', value: 2, color: 'red' }
-            }
-          } else if (st === 'IN') {
-            this.items.APPRDATA[i].APRST = 'Вход'
-            if (this.status.value < 3) {
-              this.status = { text: 'отметка вход', value: 3, color: 'red' }
-            }
-          } else if (st === 'OUT') {
-            this.items.APPRDATA[i].APRST = 'Выход'
-            if (this.status.value < 4) {
-              this.status = { text: 'отметка выход', value: 4, color: 'green' }
-            }
-          } else if (st === 'P') {
-            this.items.APPRDATA[i].APRST = 'Нет'
-            if (this.status.value < 5) {
-              this.status = { text: 'нет отметки', value: 5, color: 'red' }
-            }
-          }
+      if (!flag404) {
+        if (this.items.DATA_CARD.ZPROPUSK !== undefined && this.items.DATA_CARD.ZPROPUSK !== null && this.items.DATA_CARD.ZPROPUSK !== '') {
+          this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}&propusk=${this.items.DATA_CARD.ZPROPUSK}`
         } else {
-          if (st === '1') {
-            this.items.APPRDATA[i].APRST = 'Согласован'
-            if (this.status.value < 1) {
-              this.status = { text: 'согласован', value: 1 }
+          this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}`
+        }
+        for (let i = 0; i < this.items.APPRDATA.length; i++) {
+          let st = this.items.APPRDATA[i].APRST
+          if (this.items.STATUS === '53') {
+            if (st === '1') {
+              this.items.APPRDATA[i].APRST = 'Согласован'
+              if (this.status.value < 1) {
+                this.status = {text: 'согласован', value: 1, color: 'red'}
+              }
+            } else if (st === 'S') {
+              this.items.APPRDATA[i].APRST = 'Согласование'
+              if (this.status.value < 2) {
+                this.status = {text: 'согласование', value: 2, color: 'red'}
+              }
+            } else if (st === 'IN') {
+              this.items.APPRDATA[i].APRST = 'Вход'
+              if (this.status.value < 3) {
+                this.status = {text: 'отметка вход', value: 3, color: 'red'}
+              }
+            } else if (st === 'OUT') {
+              this.items.APPRDATA[i].APRST = 'Выход'
+              if (this.status.value < 4) {
+                this.status = {text: 'отметка выход', value: 4, color: 'green'}
+              }
+            } else if (st === 'P') {
+              this.items.APPRDATA[i].APRST = 'Нет'
+              if (this.status.value < 5) {
+                this.status = {text: 'нет отметки', value: 5, color: 'red'}
+              }
             }
-          } else if (st === 'S') {
-            this.items.APPRDATA[i].APRST = 'Согласование'
-            if (this.status.value < 2) {
-              this.status = { text: 'согласование', value: 2 }
-            }
-          } else if (st === 'IN') {
-            this.items.APPRDATA[i].APRST = 'Вход'
-            if (this.status.value < 3) {
-              this.status = { text: 'отметка вход', value: 3 }
-            }
-          } else if (st === 'OUT') {
-            this.items.APPRDATA[i].APRST = 'Выход'
-            if (this.status.value < 4) {
-              this.status = { text: 'отметка выход', value: 4 }
-            }
-          } else if (st === 'P') {
-            this.items.APPRDATA[i].APRST = 'Нет'
-            if (this.status.value < 5) {
-              this.status = { text: 'нет отметки', value: 5 }
+          } else {
+            if (st === '1') {
+              this.items.APPRDATA[i].APRST = 'Согласован'
+              if (this.status.value < 1) {
+                this.status = {text: 'согласован', value: 1}
+              }
+            } else if (st === 'S') {
+              this.items.APPRDATA[i].APRST = 'Согласование'
+              if (this.status.value < 2) {
+                this.status = {text: 'согласование', value: 2}
+              }
+            } else if (st === 'IN') {
+              this.items.APPRDATA[i].APRST = 'Вход'
+              if (this.status.value < 3) {
+                this.status = {text: 'отметка вход', value: 3}
+              }
+            } else if (st === 'OUT') {
+              this.items.APPRDATA[i].APRST = 'Выход'
+              if (this.status.value < 4) {
+                this.status = {text: 'отметка выход', value: 4}
+              }
+            } else if (st === 'P') {
+              this.items.APPRDATA[i].APRST = 'Нет'
+              if (this.status.value < 5) {
+                this.status = {text: 'нет отметки', value: 5}
+              }
             }
           }
         }
+        this.card = [
+          {title: 'Состояние пропуска', value: this.items.ES_STATUS_T.DOSTX, color: 1},
+          {title: 'Номер пропуска в SAP ERP', value: parseInt(this.items.DATA_CARD.DOKNR)},
+          {title: 'Документ удост. личность', value: this.items.DATA_CARD.ID_CARD_NUMB},
+          {title: 'ФИО', value: this.items.DATA_CARD.NAME_DRVR},
+          {
+            title: 'Дата действия',
+            value: `${this.M(this.items.DATA_CARD.VALID_DATE_FROM, 'YYYYMMDD').format('DD.MM.YYYY')} - ${this.M(this.items.DATA_CARD.VALID_DATE_TO, 'YYYYMMDD').format('DD.MM.YYYY')}`
+          }
+        ]
+        this.hiUser = [
+          {title: 'ФИО', value: this.items.DATA_CARD.INIT_PNM},
+          {title: 'Должность', value: this.items.DATA_CARD.INIT_SNM},
+          {title: 'Подразделение', value: this.items.DATA_CARD.INIT_ONM}
+        ]
+        this.writeUser = [
+          {title: 'ФИО', value: this.items.DATA_CARD.AUTHOR_PNM},
+          {title: 'Должность', value: this.items.DATA_CARD.AUTHOR_SNM},
+          {title: 'Подразделение', value: this.items.DATA_CARD.AUTHOR_ONM}
+        ]
+        this.objkey = this.items.DATA_CARD.DOKAR + this.items.DATA_CARD.DOKNR + this.items.DATA_CARD.DOKVR + this.items.DATA_CARD.DOKTL
       }
-      this.card = [
-        { title: 'Состояние пропуска', value: this.items.ES_STATUS_T.DOSTX, color: 1 },
-        { title: 'Номер пропуска в SAP ERP', value: parseInt(this.items.DATA_CARD.DOKNR) },
-        { title: 'Документ удост. личность', value: this.items.DATA_CARD.ID_CARD_NUMB },
-        { title: 'ФИО', value: this.items.DATA_CARD.NAME_DRVR },
-        { title: 'Дата действия', value: `${this.M(this.items.DATA_CARD.VALID_DATE_FROM, 'YYYYMMDD').format('DD.MM.YYYY')} - ${this.M(this.items.DATA_CARD.VALID_DATE_TO, 'YYYYMMDD').format('DD.MM.YYYY')}` }
-      ]
-      this.hiUser = [
-        { title: 'ФИО', value: this.items.DATA_CARD.INIT_PNM },
-        { title: 'Должность', value: this.items.DATA_CARD.INIT_SNM },
-        { title: 'Подразделение', value: this.items.DATA_CARD.INIT_ONM }
-      ]
-      this.writeUser = [
-        { title: 'ФИО', value: this.items.DATA_CARD.AUTHOR_PNM },
-        { title: 'Должность', value: this.items.DATA_CARD.AUTHOR_SNM },
-        { title: 'Подразделение', value: this.items.DATA_CARD.AUTHOR_ONM }
-      ]
     }
   },
   watch: {

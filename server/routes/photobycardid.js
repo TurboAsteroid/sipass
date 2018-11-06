@@ -20,7 +20,7 @@ module.exports = function (app, config, router) {
       if (propusk !== undefined && propusk !== null) {
         res.sendFile(path.join(__dirname, `../data/${propusk}.jpg`))
       } else {
-        res.sendFile(path.join(__dirname, '../data/kindred.jpg'))
+        res.sendFile(path.join(__dirname, '../data/default.jpg'))
       }
     } catch (e) {
       console.log(e)
