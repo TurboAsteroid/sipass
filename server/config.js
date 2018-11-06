@@ -23,5 +23,6 @@ module.exports = {
     'options': {
       'encrypt': false
     }
-  }
+  },
+  kpps: [11002, 11008]
 }
