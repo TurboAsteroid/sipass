@@ -17,7 +17,7 @@ Vue.prototype.$globalUserData = {
 }
 Vue.use(Vuetify)
 Vue.prototype.$config = {
-  api: 'http://10.1.100.161:8686'
+  api: 'https://apps.elem.ru:8686'
 }
 Vue.config.productionTip = false
 
