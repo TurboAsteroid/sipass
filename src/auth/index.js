@@ -7,6 +7,9 @@ export default {
       return Promise.resolve(response)
     }, (error) => {
       if (error.request.status === 404) {
+        console.log(error)
+        localStorage.clear()
+        router.push({ name: 'index' })
         return Promise.resolve(404)
       }
       console.log(error)
