@@ -1,5 +1,6 @@
 FROM node:latest
 RUN npm install pm2 -g --silent
+RUN echo "nameserver 10.1.255.29" >> /etc/resolv.conf
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN yarn
