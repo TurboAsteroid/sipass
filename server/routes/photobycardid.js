@@ -18,20 +18,19 @@ module.exports = function (app, config, router) {
   router.get('/photobycardid', async function (req, res) {
     const propusk = req.query.propusk
     try {
+      logger(req)
       if (propusk !== undefined && propusk !== null) {
         if (fs.existsSync(path.join(__dirname, `../data/${propusk}.jpg`))) {
           res.sendFile(path.join(__dirname, `../data/${propusk}.jpg`))
         } else {
-          res.sendFile(path.join(__dirname, '../data/default.jpg'))
+          res.sendFile(path.join(__dirname, '../default.jpg'))
         }
       } else {
-        res.sendFile(path.join(__dirname, '../data/default.jpg'))
+        res.sendFile(path.join(__dirname, '../default.jpg'))
       }
-      logger(req)
     } catch (e) {
       console.log(e)
     }
-    // logger(response, 1, 1, req) // by propusk
   })
 
   return router
