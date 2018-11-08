@@ -55,10 +55,13 @@ export default {
       }
     },
     async refresh (kpp) {
-      this.loading = true
-      this.items = (await axios.get(`${this.$config.api}/all${this.$route.params.id}`)).data
-      this.kpp_filter_changed(kpp)
-      this.loading = false
+      console.log('refresh ', kpp)
+      if (this.$route.params.id !== undefined) {
+        this.loading = true
+        this.items = (await axios.get(`${this.$config.api}/all${this.$route.params.id}`)).data
+        this.kpp_filter_changed(kpp)
+        this.loading = false
+      }
     },
     async open (doknr) {
       let kpp = await (this.items.filter(item => item.DOKNR === doknr))
@@ -66,12 +69,13 @@ export default {
       this.$router.push({ name: 'card', params: { kpp: kpp, doknr: doknr, propusk: -1 } })
     }
   },
-  async mounted () {
-    this.refresh(this.selectedKpp)
-    // do {
-    //   await delay(10000)
-    //   await this.refresh(this.selectedKpp)
-    // } while (1)
+  created () {
+    const self = this
+    function f () {
+      self.refresh(self.selectedKpp)
+    }
+    f()
+    setInterval(f, 60000)
   },
   watch: {
     '$route.params.id' (val, oldVal) {
