@@ -1,4 +1,5 @@
 'use strict'
+var crypto = require('crypto')
 const sql = require('mssql')
 const path = require('path')
 const fs = require('fs')
@@ -12,9 +13,9 @@ module.exports = async function (app, config, router) {
       console.error(e)
     }
   }
-  async function logger0 (cards, connection) {
+  async function logger0 (cards, connection, req) {
     try {
-      await connection.execute(`INSERT INTO gs3.logs_cards_for_img_sync (cards) VALUES ('${cards}')`)
+      await connection.execute(`INSERT INTO gs3.logs_cards_for_img_sync (cards, ip) VALUES ('${cards}', '${req.connection.remoteAddress}')`)
     } catch (e) {
       console.error(e)
     }
@@ -66,7 +67,7 @@ module.exports = async function (app, config, router) {
     }
     try {
       let connection = await mysql.createConnection(config.mariadb)
-      await logger0(cards, connection)
+      await logger0(cards, connection, req)
       connection.end()
     } catch (e) {
       console.error('logger0 error: ', e.message)
@@ -102,6 +103,7 @@ module.exports = async function (app, config, router) {
               var wstream = fs.createWriteStream(path.join(__dirname, `data/${tmp.toString()}.jpg`))
               var photo = await pool.request().query(`SELECT BulkColumn FROM OPENROWSET(BULK '` + result.recordset[c].path +
                                                   `', SINGLE_BLOB) AS Contents;`)
+              console.log(crypto.createHash('md5').update(photo).digest('hex'))
               if (photo.recordset[0].BulkColumn.length !== 366704) {
                 await wstream.write(Buffer.from(photo.recordset[0].BulkColumn))
               } else {
@@ -132,20 +134,3 @@ module.exports = async function (app, config, router) {
     }
   })
 }
-// const varsql = function () {
-//   var a = `
-//         SELECT
-//           el.emp_id,
-//           'C:\\Program Files (x86)\\SiPass integrated\\DataFolder\\Drawing\\EmployeeImages\\' +
-//           SUBSTRING(CONVERT(varchar, CONVERT(VARBINARY(8), el.emp_id),1),3,2) + '\\' +
-//           SUBSTRING(CONVERT(varchar, CONVERT(VARBINARY(8), el.emp_id),1),5,2) + '\\' +
-//           SUBSTRING(CONVERT(varchar, CONVERT(VARBINARY(8), el.emp_id),1),7,2) + '\\' +
-//           SUBSTRING(CONVERT(varchar, CONVERT(VARBINARY(8), el.emp_id),1),3,8) + 'P.jpg' as path,
-//           cl_1.number,
-//           cl_1.facility
-//         FROM asco.employee_legacy AS el
-//           INNER JOIN asco.cardholder AS ch ON el.cardholder_id = ch.cardholder_id
-//           LEFT OUTER JOIN asco.card_physical AS cp_1 ON ch.cardholder_id = cp_1.cardholder_id AND cp_1.rank = 1
-//           LEFT OUTER JOIN asco.card_logical AS cl_1 ON cp_1.card_physical_id = cl_1.card_physical_id AND cl_1.rank = 1`
-//   return a
-// }
