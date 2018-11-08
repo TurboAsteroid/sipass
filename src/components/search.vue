@@ -22,7 +22,6 @@ export default {
   },
   methods: {
     inp (v) {
-      console.log(this.prp)
       if (v === 'focusout') {
         this.prp = ''
       } else if (this.prp.length >= 10) {
