@@ -124,9 +124,9 @@ export default {
       }
       if (!flag404) {
         if (this.items.DATA_CARD.ZPROPUSK !== undefined && this.items.DATA_CARD.ZPROPUSK !== null && this.items.DATA_CARD.ZPROPUSK !== '') {
-          this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}&propusk=${this.items.DATA_CARD.ZPROPUSK}`
+          this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}&propusk=${this.items.DATA_CARD.ZPROPUSK}&time=${new Date()}`
         } else {
-          this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}`
+          this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}&time=${new Date()}`
         }
         for (let i = 0; i < this.items.APPRDATA.length; i++) {
           let st = this.items.APPRDATA[i].APRST
