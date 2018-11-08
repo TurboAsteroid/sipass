@@ -30,6 +30,7 @@ export default {
   components: { far },
   data () {
     return {
+      varSI: null,
       loading: false,
       kpps: this.$globalUserData.kpps, // тут надо будет переделывать на нормальные названия
       M: moment,
@@ -55,7 +56,7 @@ export default {
       }
     },
     async refresh (kpp) {
-      console.log('refresh ', kpp)
+      console.log(`${new Date()} refresh ${kpp} list ${this.$route.params.id}`)
       if (this.$route.params.id !== undefined) {
         this.loading = true
         this.items = (await axios.get(`${this.$config.api}/all${this.$route.params.id}`)).data
@@ -75,7 +76,11 @@ export default {
       self.refresh(self.selectedKpp)
     }
     f()
-    setInterval(f, 60000)
+    this.varSI = setInterval(f, 60000)
+  },
+  destroyed () {
+    console.error('list destroyed')
+    clearInterval(this.varSI)
   },
   watch: {
     '$route.params.id' (val, oldVal) {

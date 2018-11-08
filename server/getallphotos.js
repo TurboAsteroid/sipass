@@ -1,21 +1,26 @@
 'use strict'
-var crypto = require('crypto')
 const sql = require('mssql')
 const path = require('path')
 const fs = require('fs')
 const mysql = require('mysql2/promise')
 const axios = require('axios')
 module.exports = async function (app, config, router) {
+  // eslint-disable-next-line
+  String.prototype.replaceAll = function (search, replacement) {
+    var target = this
+    return target.replace(new RegExp(search, 'g'), replacement)
+  }
+
   async function logger (empId, text, card, connection) {
     try {
-      await connection.execute(`INSERT INTO gs3.logs_img_sync (emp_id, \`text\`, card) VALUES (${empId}, '${text}', ${card})`)
+      await connection.execute(`INSERT INTO gs3.logs_photo_sync (emp_id, \`text\`, card) VALUES (${empId}, '${text}', ${card})`)
     } catch (e) {
       console.error(e)
     }
   }
-  async function logger0 (cards, connection, req) {
+  async function logger0 (cards, connection) {
     try {
-      await connection.execute(`INSERT INTO gs3.logs_cards_for_img_sync (cards, ip) VALUES ('${cards}', '${req.connection.remoteAddress}')`)
+      await connection.execute(`INSERT INTO gs3.logs_cards_for_photo_sync (cards) VALUES ('${cards}')`)
     } catch (e) {
       console.error(e)
     }
@@ -24,9 +29,13 @@ module.exports = async function (app, config, router) {
   router.get('/getallphotos', async function (req, res) {
     const kpps = config.kpps
     // получаем все листы и скидываем в массив номера всех карточек
-    const cards = []
+    const cards = [] // номера всех карточек для всех пропусков со статусом 53
+    const dataAll = [] // все пропуски на всех кпп со статусом 53
     for (let i = 0; i < kpps.length; i++) {
-      const data = (await axios.get(`https://sap-prx.ugmk.com/ummc/permit/list?status=53&ckeckpoint=${kpps[i]}`)).data
+      let data = (await axios.get(`https://sap-prx.ugmk.com/ummc/permit/list?status=53&ckeckpoint=${kpps[i]}`)).data
+      for (let j = 0; j < data.length; j++) {
+        dataAll.push(data[j])
+      }
       for (let j = 0; j < data.length; j++) {
         for (let s = 0; s < data[j].ZPROPUSK.length; s++) {
           if (data[j].ZPROPUSK[s] === '2' && data[j].ZPROPUSK[s + 1] === '1' && data[j].ZPROPUSK[s + 2] === '5') {
@@ -67,7 +76,7 @@ module.exports = async function (app, config, router) {
     }
     try {
       let connection = await mysql.createConnection(config.mariadb)
-      await logger0(cards, connection, req)
+      await logger0(cards, connection)
       connection.end()
     } catch (e) {
       console.error('logger0 error: ', e.message)
@@ -93,27 +102,36 @@ module.exports = async function (app, config, router) {
               if (result.recordset[c].facility.toString() === '0') {
                 result.recordset[c].facility = '215'
               }
-              let tmp = (result.recordset[c].facility.toString() + result.recordset[c].number.toString())
-              if (tmp.length < 10) {
-                let zero = 10 - parseInt(tmp.length)
+              let fullCardN = (result.recordset[c].facility.toString() + result.recordset[c].number.toString())
+              if (fullCardN.length < 10) {
+                let zero = 10 - parseInt(fullCardN.length)
                 for (let f = 0; f < zero; f++) {
-                  tmp = '0' + tmp
+                  fullCardN = '0' + fullCardN
                 }
               }
-              var wstream = fs.createWriteStream(path.join(__dirname, `data/${tmp.toString()}.jpg`))
               var photo = await pool.request().query(`SELECT BulkColumn FROM OPENROWSET(BULK '` + result.recordset[c].path +
                                                   `', SINGLE_BLOB) AS Contents;`)
-              console.log(crypto.createHash('md5').update(photo).digest('hex'))
+              // пишем историю
+              let query = 'INSERT INTO gs3.history SET ? ON DUPLICATE KEY UPDATE doknr = doknr'
+              let values = {
+                doknr: dataAll[c].DOKNR,
+                fullCardN: fullCardN,
+                json: JSON.stringify(dataAll[c]),
+                photo: photo.recordset[0].BulkColumn
+              }
+              connection.query(query, values)
+              var wstream = fs.createWriteStream(path.join(__dirname, `data/${fullCardN.toString()}.jpg`))
               if (photo.recordset[0].BulkColumn.length !== 366704) {
                 await wstream.write(Buffer.from(photo.recordset[0].BulkColumn))
+                console.log(`${new Date()} ::: на фс записана фотка карточки fullCardN: ${fullCardN}`)
               } else {
-                await wstream.write(Buffer.from([]))
+                await fs.copyFileSync(path.join(__dirname, `default.jpg`), path.join(__dirname, `data/${fullCardN.toString()}.jpg`))
+                console.error(`${new Date()} ::: на фс записана фотка карточки fullCardN: ${fullCardN}`)
               }
-              console.log(new Date() + '::: emp_id: ' + result.recordset[c].emp_id)
-              await logger(result.recordset[c].emp_id, 'done', tmp, connection)
+              await logger(result.recordset[c].emp_id, 'done', fullCardN, connection)
             } catch (err) {
-              console.error(new Date() + '::: emp_id: ' + result.recordset[c].emp_id + ' ::: ' + err)
-              await logger(result.recordset[c].emp_id, err, 0, connection)
+              console.error(`${new Date()} ::: ошибка работы с фоткой ${err}`)
+              await logger(result.recordset[c].emp_id, (err.toString().replaceAll('/', '_')).replaceAll('\'', ''), -1, connection)
             }
             wstream.end()
           }
@@ -122,7 +140,7 @@ module.exports = async function (app, config, router) {
         }
       } catch (err) {
         console.log(new Date() + '::: ' + err)
-        await logger(0, err, 0, connection)
+        await logger(-1, (err.toString().replaceAll('/', '_')).replaceAll('\'', ''), -1, connection)
       } finally {
         pool.close()
         connection.end()
