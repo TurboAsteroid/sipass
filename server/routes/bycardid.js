@@ -31,7 +31,3 @@ module.exports = function (app, config, router) {
 
   return router
 }
-// https://sap-prx.ugmk.com:443/ummc/permit/main?propusk=0021559927&sap-user=skud_uem&sap-password=sRec137K
-//         ckeckpoint: req.query.kpp,
-//         'sap-user': 'skud_uem',
-//         'sap-password': 'sRec137K'
