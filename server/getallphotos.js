@@ -18,13 +18,6 @@ module.exports = async function (app, config, router) {
       console.error(e)
     }
   }
-  async function logger0 (cards, connection) {
-    try {
-      await connection.execute(`INSERT INTO gs3.logs_cards_for_photo_sync (cards) VALUES ('${cards}')`)
-    } catch (e) {
-      console.error(e)
-    }
-  }
 
   router.get('/getallphotos', async function (req, res) {
     const kpps = config.kpps
@@ -73,13 +66,6 @@ module.exports = async function (app, config, router) {
         sqlReq += ` number = ${cards[i]} or`
         changedFlag = true
       }
-    }
-    try {
-      let connection = await mysql.createConnection(config.mariadb)
-      await logger0(cards, connection)
-      connection.end()
-    } catch (e) {
-      console.error('logger0 error: ', e.message)
     }
     if (changedFlag) {
     // открываем пул подключения к серверу сипасса
