@@ -4,6 +4,7 @@ const path = require('path')
 const fs = require('fs')
 const mysql = require('mysql2/promise')
 const axios = require('axios')
+const schedule = require('node-schedule')
 module.exports = async function (app, config, router) {
   // eslint-disable-next-line
   String.prototype.replaceAll = function (search, replacement) {
@@ -18,8 +19,7 @@ module.exports = async function (app, config, router) {
       console.error(e)
     }
   }
-
-  router.get('/getallphotos', async function (req, res) {
+  async function main () {
     const kpps = config.kpps
     // получаем все листы и скидываем в массив номера всех карточек
     const cards = [] // номера всех карточек для всех пропусков со статусом 53
@@ -68,12 +68,11 @@ module.exports = async function (app, config, router) {
       }
     }
     if (changedFlag) {
-    // открываем пул подключения к серверу сипасса
+      // открываем пул подключения к серверу сипасса
       const pool = new sql.ConnectionPool(config.configSiPass)
       const connection = await mysql.createConnection(config.mariadb)
       pool.on('error', err => {
         console.log(new Date() + '::: sql errors ', err)
-        res.status(500).end()
       })
       try {
         await pool.connect()
@@ -96,7 +95,7 @@ module.exports = async function (app, config, router) {
                 }
               }
               var photo = await pool.request().query(`SELECT BulkColumn FROM OPENROWSET(BULK '` + result.recordset[c].path +
-                                                  `', SINGLE_BLOB) AS Contents;`)
+                `', SINGLE_BLOB) AS Contents;`)
               // пишем историю
               let query = 'INSERT INTO gs3.history SET ? ON DUPLICATE KEY UPDATE doknr = doknr'
               let values = {
@@ -122,7 +121,6 @@ module.exports = async function (app, config, router) {
             wstream.end()
           }
           console.log(new Date() + '::: done')
-          res.status(200).end()
         }
       } catch (err) {
         console.log(new Date() + '::: ' + err)
@@ -131,10 +129,16 @@ module.exports = async function (app, config, router) {
         pool.close()
         connection.end()
         console.log(new Date() + '::: pool.close() done')
-        res.status(200).end()
       }
-    } else {
-      res.status(200).end()
     }
+  }
+
+  schedule.scheduleJob('*/1 * * * *', function () { // каждую минуту
+    main()
+  })
+
+  router.get('/getallphotos', async function (req, res) {
+    await main()
+    res.sendStatus(200)
   })
 }
