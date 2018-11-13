@@ -1,5 +1,6 @@
 <template>
   <input
+    v-if="show"
     type="text"
     v-model="prp"
     @click='prp = ""'
@@ -37,6 +38,17 @@ export default {
   watch: {
     prp: function (v, ov) {
       this.inp(v)
+    }
+  },
+  computed: {
+    show: function () {
+      console.log(this.$globalUserData)
+      for (let i = 0; i < Object.keys(this.$globalUserData.permissions).length; i++) {
+        if (this.$globalUserData.permissions[Object.keys(this.$globalUserData.permissions)[i]] < 3) {
+          return true
+        }
+      }
+      return false
     }
   }
 }

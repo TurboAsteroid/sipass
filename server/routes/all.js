@@ -1,53 +1,18 @@
 'use strict'
-const axios = require('axios')
-const mysql = require('mysql2/promise')
-const jwt = require('jsonwebtoken')
 const helpers = require('../helpers')
 module.exports = function (app, config, router) {
-  async function logger (json, jsonStatus, jsonKppId, req) {
-    try {
-      const token = req.headers.authorization.replace(/Bearer /g, '')
-      const decoded = jwt.verify(token, config.jwtSecret)
-      const connection = await mysql.createConnection(config.mariadb)
-      await connection.execute(`INSERT INTO gs3.logs_get_data (json,\`user\`,ip,json_status,json_kpp_id, url) VALUES ('${JSON.stringify(json)}', '${decoded.login}', '${req.connection.remoteAddress}', '${jsonStatus}', '${jsonKppId}', '${req.originalUrl}');`)
-      await connection.end()
-    } catch (e) {
-      console.error(e)
-    }
-  }
-  async function getter (status, req) {
-    const kpps = await helpers.filterKPPS(config.kpps, req.locals.permissions)
-    var sapResponse = []
-    for (let i = 0; i < kpps.length; i++) {
-      let response = (await axios.get(`https://sap-prx.ugmk.com:443/ummc/permit/list`, {
-        params: {
-          status: status,
-          ckeckpoint: parseInt(kpps[i].value),
-          'sap-user': 'skud_uem',
-          'sap-password': 'sRec137K'
-        }
-      })
-      ).data
-      for (let a = 0; a < response.length; a++) {
-        response[a].KPP = kpps[i].value.toString()
-        logger(response[a], status, parseInt(kpps[i].value), req)
-        sapResponse.push(response[a])
-      }
-    }
-    return sapResponse
-  }
   router.get('/all51', async function (req, res) {
-    const data = await getter(51, req)
+    const data = await helpers.getter(51, req, config)
     console.log(data)
     res.send(data)
   })
   router.get('/all57', async function (req, res) {
-    const data = await getter(57, req)
+    const data = await helpers.getter(57, req, config)
     console.log(data)
     res.send(data)
   })
   router.get('/all53', async function (req, res) {
-    const data = await getter(53, req)
+    const data = await helpers.getter(53, req, config)
     console.log(data)
     res.send(data)
   })

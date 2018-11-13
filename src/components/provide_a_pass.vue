@@ -44,7 +44,6 @@
 <script>
 // нагло спионерено с https://serversideup.net/uploading-files-vuejs-axios/
 import axios from 'axios'
-import Vue from 'vue'
 export default {
   name: 'provide_a_pass',
   props: ['doc', 'objkey'],
