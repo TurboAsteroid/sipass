@@ -32,7 +32,6 @@ export default {
     return {
       varSI: null,
       loading: false,
-      kpps: this.$globalUserData.kpps, // тут надо будет переделывать на нормальные названия
       M: moment,
       items: [],
       headers: [
@@ -79,8 +78,13 @@ export default {
     this.varSI = setInterval(f, 60000)
   },
   destroyed () {
-    console.error('list destroyed')
+    console.log('list destroyed')
     clearInterval(this.varSI)
+  },
+  computed: {
+    kpps: function () {
+      return this.$globalUserData.kpps
+    }
   },
   watch: {
     '$route.params.id' (val, oldVal) {
