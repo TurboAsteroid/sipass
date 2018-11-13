@@ -81,17 +81,25 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (localStorage.getItem('jwt') == null || localStorage.getItem('globalUserData') == null) {
-      next({
-        path: '/login',
-        params: { nextUrl: to.fullPath }
-      })
+      if (localStorage.getItem('globalUserData') !== 'undefined') {
+        Vue.prototype.$globalUserData = JSON.parse(localStorage.getItem('globalUserData'))
+      }
+      localStorage.clear()
+      next({ name: 'auth' })
     } else {
       next()
     }
   } else if (to.matched.some(record => record.meta.guest)) {
     if (localStorage.getItem('jwt') == null || localStorage.getItem('globalUserData') == null) {
+      if (localStorage.getItem('globalUserData') !== 'undefined') {
+        Vue.prototype.$globalUserData = JSON.parse(localStorage.getItem('globalUserData'))
+      } else {
+        localStorage.clear()
+        next({ name: 'auth' })
+      }
       next()
     } else {
+      localStorage.clear()
       next({ name: 'auth' })
     }
   } else {

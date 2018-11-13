@@ -80,7 +80,7 @@ export default {
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + res.data.token
           if (res.status === 200) {
             localStorage.setItem('jwt', res.data.token)
-            localStorage.setItem('globalUserData', JSON.stringify(res.data.globalUserData.globalUserData))
+            localStorage.setItem('globalUserData', JSON.stringify(res.data.globalUserData))
             Vue.prototype.$globalUserData = res.data.globalUserData
             console.log(Vue.prototype.$globalUserData)
             if (localStorage.getItem('jwt') != null) {

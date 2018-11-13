@@ -12,7 +12,7 @@ module.exports = {
     let permissions = {}
     Object.assign(permissions, permissionsSQL[0][0])
     for (let i = 0; i < len; i++) {
-      if (permissionsSQL[0][0][Object.keys(permissionsSQL[0][0])[i]] === -1) {
+      if (permissionsSQL[0][0][Object.keys(permissionsSQL[0][0])[i]] === 9) {
         delete permissions[Object.keys(permissionsSQL[0][0])[i]]
       }
     }
