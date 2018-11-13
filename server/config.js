@@ -31,6 +31,6 @@ module.exports = {
   keys: {
     privkey: '/etc/letsencrypt/live/apps.elem.ru/privkey.pem',
     cert: '/etc/letsencrypt/live/apps.elem.ru/cert.pem',
-    chain: '/etc/letsencrypt/live/apps.elem.ru/chain.pem',
+    chain: '/etc/letsencrypt/live/apps.elem.ru/chain.pem'
   }
 }
