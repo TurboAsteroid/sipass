@@ -25,7 +25,7 @@ module.exports = async function (app, config, router) {
     const cards = [] // номера всех карточек для всех пропусков со статусом 53
     const dataAll = [] // все пропуски на всех кпп со статусом 53
     for (let i = 0; i < kpps.length; i++) {
-      let data = (await axios.get(`https://sap-prx.ugmk.com/ummc/permit/list?status=53&ckeckpoint=${kpps[i]}`)).data
+      let data = (await axios.get(`https://sap-prx.ugmk.com/ummc/permit/list?status=53&ckeckpoint=${parseInt(kpps[i].value)}`)).data
       for (let j = 0; j < data.length; j++) {
         dataAll.push(data[j])
       }

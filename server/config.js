@@ -24,5 +24,13 @@ module.exports = {
       'encrypt': false
     }
   },
-  kpps: [11002, 11008]
+  kpps: [
+    {value: '11002', text: 'Центральная проходная'},
+    {value: '11008', text: 'Инженерный корпус'}
+  ],
+  keys: {
+    privkey: '/etc/letsencrypt/live/apps.elem.ru/privkey.pem',
+    cert: '/etc/letsencrypt/live/apps.elem.ru/cert.pem',
+    chain: '/etc/letsencrypt/live/apps.elem.ru/chain.pem',
+  }
 }

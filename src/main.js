@@ -11,14 +11,8 @@ import 'es6-promise/auto'
 import auth from '@/auth'
 auth.initAuth()
 Vue.prototype.$appName = 'Разовый пропуск'
-Vue.prototype.$appVersion = 'v3.r8'
-Vue.prototype.$globalUserData = {
-  kpps: [
-    {value: '11002', text: 'Центральная проходная'},
-    {value: '11008', text: 'Инженерный корпус'},
-    {value: 'Все', text: 'Все'}
-  ]
-}
+Vue.prototype.$appVersion = 'v3.r8.1'
+Vue.prototype.$globalUserData = {}
 Vue.use(Vuetify)
 Vue.prototype.$config = {
   api: 'https://apps.elem.ru:8686'

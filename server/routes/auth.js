@@ -1,5 +1,7 @@
 'use strict'
 const mysql = require('mysql2/promise')
+const _ = require('underscore')
+const helpers = require('../helpers')
 module.exports = function (app, config, router) {
   async function logger (user, message, url, req) {
     try {
@@ -45,9 +47,13 @@ module.exports = function (app, config, router) {
                 await logger(`${decoded.login}`, 'password wrong', req.originalUrl, req)
                 return
               }
-              if (auth) {
-                await logger(`${decoded.login}`, 'authenticated', req.originalUrl, req)
-                console.log(`${decoded.login} Authenticated!`)
+              await logger(`${decoded.login}`, 'authenticated', req.originalUrl, req)
+              console.log(`${decoded.login} Authenticated!`)
+              // получаем права из моей базы, если прав нет, то доступ закрыт
+              let permissions = await helpers.userPermissions(decoded.login, config.mariadb)
+
+              if (auth && _.isEqual(permissions, decoded.permissions)) {
+                req.locals = { permissions: permissions, user: decoded.login }
                 next()
               } else {
                 console.log(`${req.body.user} Authenticated failed!`)
@@ -92,12 +98,27 @@ module.exports = function (app, config, router) {
           if (auth) {
             await logger(`${req.body.user.login}`, 'authenticated', req.originalUrl, req)
             console.log(`${req.body.user.login} Authenticated!`)
-            let token = await jwt.sign({login: req.body.user.login, password: req.body.user.password},
-              config.jwtSecret,
-              {
-                expiresIn: '24h'
-              })
-            res.status(200).send({ auth: true, token: token, user: { name: req.body.user.login, isAdmin: 1 } })
+            // получаем права из моей базы, если прав нет, то доступ закрыт
+            // let user = (req.body.user.login.split('@'))[0]
+            // let connection = await mysql.createConnection(config.mariadb)
+            // let permissionsSQL = await connection.query(`select * from permissions where user = '${user}'`)
+            // await connection.end()
+            // delete permissionsSQL[0][0].id
+            // delete permissionsSQL[0][0].user
+            // let len = Object.keys(permissionsSQL[0][0]).length
+            // let permissions = {}
+            // Object.assign(permissions, permissionsSQL[0][0])
+            // for (let i = 0; i < len; i++) {
+            //   if (permissionsSQL[0][0][Object.keys(permissionsSQL[0][0])[i]] === -1) {
+            //     delete permissions[Object.keys(permissionsSQL[0][0])[i]]
+            //   }
+            // }
+            let permissions = await helpers.userPermissions((req.body.user.login.split('@'))[0], config.mariadb)
+            let allowedKpps = helpers.filterKPPS(config.kpps, permissions)
+            allowedKpps.push({value: 'Все', text: 'Все'})
+            console.log(allowedKpps)
+            let token = await jwt.sign({ login: req.body.user.login, password: req.body.user.password, permissions: permissions }, config.jwtSecret, { expiresIn: 365 * 24 + 'h' })
+            res.status(200).send({ token: token, globalUserData: { permissions: permissions, kpps: allowedKpps } })
             console.log(token)
             console.log(jwt.verify(token, config.jwtSecret))
           } else {

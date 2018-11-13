@@ -2,17 +2,14 @@
 const app8686 = require('./app')
 const fs = require('fs')
 const https = require('https')
-
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/apps.elem.ru/privkey.pem', 'utf8')
-const certificate = fs.readFileSync('/etc/letsencrypt/live/apps.elem.ru/cert.pem', 'utf8')
-const ca = fs.readFileSync('/etc/letsencrypt/live/apps.elem.ru/chain.pem', 'utf8')
+const config = require('./config')
 
 const credentials = {
-  key: privateKey,
-  cert: certificate,
-  ca: ca
+  key: fs.readFileSync(config.keys.privkey, 'utf8'),
+  cert: fs.readFileSync(config.keys.cert, 'utf8'),
+  ca: fs.readFileSync(config.keys.chain, 'utf8')
 }
 const server = https.createServer(credentials, app8686)
 server.listen(8686, () => {
-  console.log('HTTP Server running on port 8686')
+  console.log('HTTPS Server running on port 8686')
 })

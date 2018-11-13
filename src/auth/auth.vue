@@ -10,14 +10,14 @@
           id="login"
         ></v-text-field>
         <v-text-field
-          label="Пароль"
           v-model="password"
-          min="8"
-          :append-icon="e1 ? 'visibility' : 'visibility_off'"
-          :append="() => (e1 = !e1)"
-          :type="e1 ? 'text' : 'password'"
+          :append-icon="show1 ? 'visibility_off' : 'visibility'"
           :rules="passwordRules"
+          :type="show1 ? 'text' : 'password'"
+          name="password"
           counter
+          @click:append="show1 = !show1"
+          label="Пароль"
           required
           id="password"
         ></v-text-field>
@@ -31,12 +31,13 @@
 <script>
 import axios from 'axios'
 import router from '@/router'
-import S from '@/store'
+import Vue from 'vue'
 export default {
   name: 'auth',
   props: ['redirRouteName'],
   data () {
     return {
+      show1: false,
       valid: false,
       e1: false,
       password: 'gs2-1',
@@ -79,7 +80,9 @@ export default {
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + res.data.token
           if (res.status === 200) {
             localStorage.setItem('jwt', res.data.token)
-            localStorage.setItem('auth', res.data.auth)
+            localStorage.setItem('globalUserData', JSON.stringify(res.data.globalUserData.globalUserData))
+            Vue.prototype.$globalUserData = res.data.globalUserData
+            console.log(Vue.prototype.$globalUserData)
             if (localStorage.getItem('jwt') != null) {
               if (this.$route.params.nextUrl != null) {
                 this.router.push(this.$route.params.nextUrl)
@@ -89,7 +92,7 @@ export default {
                   redirRouteName = 'index'
                 }
                 router.push({ name: redirRouteName })
-                S.commit('navigation/exitButtonIsActive', true)
+                this.$store.commit('navigation/exitButtonIsActive', true)
               }
             }
           } else {
@@ -98,7 +101,7 @@ export default {
         } catch (err) {
           console.log(err)
           router.push({ name: 'auth' })
-          S.commit('navigation/exitButtonIsActive', false)
+          this.$store.commit('navigation/exitButtonIsActive', false)
         }
       }
     }
