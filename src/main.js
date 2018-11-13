@@ -12,7 +12,15 @@ import auth from '@/auth'
 auth.initAuth()
 Vue.prototype.$appName = 'Разовый пропуск'
 Vue.prototype.$appVersion = 'v3.r8.1'
-Vue.prototype.$globalUserData = {}
+try {
+  Vue.prototype.$globalUserData = {permissions: {}, kpps: []}
+  if (localStorage.getItem('globalUserData') !== 'undefined') {
+    Vue.prototype.$globalUserData = JSON.parse(localStorage.getItem('globalUserData'))
+  }
+} catch (e) {
+  console.log(e)
+  console.log('main error loading globalUserData from localstorage')
+}
 Vue.use(Vuetify)
 Vue.prototype.$config = {
   api: 'https://apps.elem.ru:8686'

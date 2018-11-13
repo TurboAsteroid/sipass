@@ -1,5 +1,5 @@
 <template>
-    <v-layout wrap align-start justify-start row fill-height>
+    <v-layout wrap align-start justify-start row fill-height v-if="show">
       <v-flex xs12 md6 d-flex>
         <v-text-field
           label="Кликните сюда и считайте карту"
@@ -44,6 +44,7 @@
 <script>
 // нагло спионерено с https://serversideup.net/uploading-files-vuejs-axios/
 import axios from 'axios'
+import Vue from 'vue'
 export default {
   name: 'provide_a_pass',
   props: ['doc', 'objkey'],
@@ -94,6 +95,17 @@ export default {
     },
     retprp () {
       axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.kpp, ckeckpoint: this.$route.params.doknr, action: 'RET'})
+    }
+  },
+  computed: {
+    show: function () {
+      console.log(this.$globalUserData)
+      for (let i = 0; i < Object.keys(this.$globalUserData.permissions).length; i++) {
+        if (Object.keys(this.$globalUserData.permissions)[i] === this.$route.params.kpp) {
+          return this.$globalUserData.permissions[this.$route.params.kpp] <= 2
+        }
+      }
+      return false
     }
   }
 }
