@@ -52,7 +52,7 @@ module.exports = function (app, config, router) {
               // получаем права из моей базы, если прав нет, то доступ закрыт
               let permissions = await helpers.userPermissions(decoded.login, config.mariadb)
 
-              if (auth && _.isEqual(permissions, decoded.permissions)) {
+              if (auth && _.isEqual(permissions, decoded.permissions) && Object.keys(permissions).length > 0) {
                 req.locals = { permissions: permissions, user: decoded.login }
                 next()
               } else {
@@ -99,31 +99,27 @@ module.exports = function (app, config, router) {
             await logger(`${req.body.user.login}`, 'authenticated', req.originalUrl, req)
             console.log(`${req.body.user.login} Authenticated!`)
             // получаем права из моей базы, если прав нет, то доступ закрыт
-            // let user = (req.body.user.login.split('@'))[0]
-            // let connection = await mysql.createConnection(config.mariadb)
-            // let permissionsSQL = await connection.query(`select * from permissions where user = '${user}'`)
-            // await connection.end()
-            // delete permissionsSQL[0][0].id
-            // delete permissionsSQL[0][0].user
-            // let len = Object.keys(permissionsSQL[0][0]).length
-            // let permissions = {}
-            // Object.assign(permissions, permissionsSQL[0][0])
-            // for (let i = 0; i < len; i++) {
-            //   if (permissionsSQL[0][0][Object.keys(permissionsSQL[0][0])[i]] === -1) {
-            //     delete permissions[Object.keys(permissionsSQL[0][0])[i]]
-            //   }
-            // }
             let permissions = await helpers.userPermissions((req.body.user.login.split('@'))[0], config.mariadb)
-            let allowedKpps = helpers.filterKPPS(config.kpps, permissions)
-            allowedKpps.push({value: 'Все', text: 'Все'})
-            console.log(allowedKpps)
-            let token = await jwt.sign({ login: req.body.user.login, password: req.body.user.password, permissions: permissions }, config.jwtSecret, { expiresIn: 365 * 24 + 'h' })
-            res.status(200).send({ token: token, globalUserData: { permissions: permissions, kpps: allowedKpps } })
-            console.log(token)
-            console.log(jwt.verify(token, config.jwtSecret))
+            if (Object.keys(permissions).length > 0) {
+              let allowedKpps = helpers.filterKPPS(config.kpps, permissions)
+              allowedKpps.push({value: 'Все', text: 'Все'})
+              console.log(allowedKpps)
+              let token = await jwt.sign({
+                login: req.body.user.login,
+                password: req.body.user.password,
+                permissions: permissions
+              }, config.jwtSecret, {expiresIn: 365 * 24 + 'h'})
+              res.status(200).send({token: token, globalUserData: {permissions: permissions, kpps: allowedKpps}})
+              console.log(token)
+              console.log(jwt.verify(token, config.jwtSecret))
+            } else {
+              await logger(`${req.body.user.login}`, 'authenticated failed', req.originalUrl, req)
+              console.log(`${req.body.user.login} Authenticated failed!`)
+              res.status(403).send(JSON.stringify(err))
+            }
           } else {
             await logger(`${req.body.user.login}`, 'authenticated failed', req.originalUrl, req)
-            console.log(`${req.body.user} Authenticated failed!`)
+            console.log(`${req.body.user.login} Authenticated failed!`)
             res.status(403).send(JSON.stringify(err))
           }
         })
