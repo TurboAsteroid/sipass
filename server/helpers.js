@@ -1,5 +1,19 @@
+const axios = require('axios')
 const mysql = require('mysql2/promise')
+const jwt = require('jsonwebtoken')
+const config = require('./config')
 // получаем права из моей базы
+async function logger (json, jsonStatus, jsonKppId, req) {
+  try {
+    const token = req.headers.authorization.replace(/Bearer /g, '')
+    const decoded = jwt.verify(token, config.jwtSecret)
+    const connection = await mysql.createConnection(config.mariadb)
+    await connection.execute(`INSERT INTO gs3.logs_get_data (json,\`user\`,ip,json_status,json_kpp_id, url) VALUES ('${JSON.stringify(json)}', '${decoded.login}', '${req.connection.remoteAddress}', '${jsonStatus}', '${jsonKppId}', '${req.originalUrl}');`)
+    await connection.end()
+  } catch (e) {
+    console.error(e)
+  }
+}
 module.exports = {
   userPermissions: async function (login, sqlConfig) {
     let user = (login.split('@'))[0]
@@ -29,5 +43,27 @@ module.exports = {
       }
     }
     return allowedKpps
+  },
+  // возвращает список пропусков, доступных пользователю. на чтение доступны все
+  getter: async function (status, req, config) {
+    const kpps = await this.filterKPPS(config.kpps, req.locals.permissions)
+    var sapResponse = []
+    for (let i = 0; i < kpps.length; i++) {
+      let response = (await axios.get(`https://sap-prx.ugmk.com:443/ummc/permit/list`, {
+        params: {
+          status: status,
+          ckeckpoint: parseInt(kpps[i].value),
+          'sap-user': 'skud_uem',
+          'sap-password': 'sRec137K'
+        }
+      })
+      ).data
+      for (let a = 0; a < response.length; a++) {
+        response[a].KPP = kpps[i].value.toString()
+        logger(response[a], status, parseInt(kpps[i].value), req)
+        sapResponse.push(response[a])
+      }
+    }
+    return sapResponse
   }
 }
