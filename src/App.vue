@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-navigation-drawer app v-if="exitButtonIsActive" fixed clipped class="grey lighten-4" v-model="drawer"><navigation /></v-navigation-drawer>
-    <v-toolbar app clipped-left>
+    <v-toolbar app clipped-left style="min-width: 1080px">
       <v-toolbar-side-icon @click.native="drawer = !drawer"></v-toolbar-side-icon>
       <span class="title ml-3 mr-5">{{$appName}}<span v-if="$route.params.name !== undefined">: {{$route.params.name}}</span></span>
       <v-spacer></v-spacer>
@@ -10,7 +10,7 @@
     </v-toolbar>
     <v-content>
       <v-container fluid>
-        <v-card height="100%" color="blue-grey lighten-5">
+        <v-card height="100%" color="blue-grey lighten-5" style="min-width: 1080px">
           <router-view></router-view>
         </v-card>
       </v-container>

@@ -2,6 +2,7 @@
 const axios = require('axios')
 const mysql = require('mysql2/promise')
 const jwt = require('jsonwebtoken')
+const helpers = require('../helpers')
 module.exports = function (app, config, router) {
   async function logger (json, jsonStatus, jsonKppId, req) {
     try {
@@ -14,23 +15,22 @@ module.exports = function (app, config, router) {
       console.error(e)
     }
   }
-
   async function getter (status, req) {
-    const kpps = [11002, 11008]
+    const kpps = await helpers.filterKPPS(config.kpps, req.locals.permissions)
     var sapResponse = []
     for (let i = 0; i < kpps.length; i++) {
       let response = (await axios.get(`https://sap-prx.ugmk.com:443/ummc/permit/list`, {
         params: {
           status: status,
-          ckeckpoint: kpps[i],
+          ckeckpoint: parseInt(kpps[i].value),
           'sap-user': 'skud_uem',
           'sap-password': 'sRec137K'
         }
       })
       ).data
       for (let a = 0; a < response.length; a++) {
-        response[a].KPP = kpps[i].toString()
-        logger(response[a], status, kpps[i], req)
+        response[a].KPP = kpps[i].value.toString()
+        logger(response[a], status, parseInt(kpps[i].value), req)
         sapResponse.push(response[a])
       }
     }
