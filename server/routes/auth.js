@@ -38,6 +38,7 @@ module.exports = function (app, config, router) {
           if (!user) {
             console.log(`User: ${decoded.login} not found.`)
             await logger(`${decoded.login}`, 'user not found', req.originalUrl, req)
+            res.status(403).send('Access denied')
           } else {
             console.log(JSON.stringify(user))
             ad.authenticate(decoded.login, decoded.password, async function (err, auth) {
@@ -86,6 +87,7 @@ module.exports = function (app, config, router) {
       if (!user) {
         await logger(`${req.body.user.login}`, 'user not found', req.originalUrl, req)
         console.log(`User: ${req.body.user.login} not found.`)
+        res.status(403).send('Access denied')
       } else {
         console.log(JSON.stringify(user))
         ad.authenticate(req.body.user.login, req.body.user.password, async function (err, auth) {

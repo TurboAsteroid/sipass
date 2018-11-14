@@ -1,6 +1,5 @@
 <template>
   <input
-    v-if="show"
     type="text"
     v-model="prp"
     @click='prp = ""'
@@ -11,6 +10,7 @@
     v-on:focusout="inp('focusout')"
     @keydown.enter="inp"
   />
+  <!--v-if="show"-->
 </template>
 
 <script>
@@ -41,17 +41,17 @@ export default {
   //     this.inp(v)
   //   }
   // },
-  computed: {
-    show: function () {
-      console.log(this.$globalUserData)
-      for (let i = 0; i < Object.keys(this.$globalUserData.permissions).length; i++) {
-        if (this.$globalUserData.permissions[Object.keys(this.$globalUserData.permissions)[i]] < 3) {
-          return true
-        }
-      }
-      return false
-    }
-  }
+  // computed: {
+  //   show: function () {
+  //     console.log(this.$globalUserData)
+  //     for (let i = 0; i < Object.keys(this.$globalUserData.permissions).length; i++) {
+  //       if (this.$globalUserData.permissions[Object.keys(this.$globalUserData.permissions)[i]] < 3) {
+  //         return true
+  //       }
+  //     }
+  //     return false
+  //   }
+  // }
 }
 function getRandomInt (min, max) {
   return Math.floor(Math.random() * (max - min)) + min
