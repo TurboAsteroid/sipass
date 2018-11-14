@@ -70,9 +70,25 @@ module.exports = {
   searchDocInListByDoknr: function (list, doc) {
     for (let i = 0; i < list.length; i++) {
       if (list[i].DOKNR === doc.DATA_CARD.DOKNR) {
-        return true
+        return { result: true, kpp: list[i].KPP }
       }
     }
-    return false
+    return { result: false, kpp: -1 }
+  },
+  isUserHasAccessToDoc: async function (doc, req, config) {
+    if (doc.STATUS !== '') {
+      let list = await this.getter(doc.STATUS, req, config)
+      let searchResult = this.searchDocInListByDoknr(list, doc)
+      if (searchResult.result) {
+        logger(doc, 1, searchResult.kpp, req)
+        return doc
+      } else {
+        logger(`404: пропуск не найден или нет прав и пользователь ломится не туда ${doc}`, 1, searchResult.kpp, req) // by doknr
+        return 404
+      }
+    } else {
+      logger(`404: пропуск не найден или нет прав и пользователь ломится не туда ${doc}`, 1, -1, req)
+      return 404
+    }
   }
 }
