@@ -16,7 +16,7 @@ module.exports = function (app, config, router) {
     }
   }
   router.get('/bycardid', async function (req, res) {
-    const list = await helpers.getter(57, req, config)
+    const list = await helpers.getter(53, req, config)
     let response = (await axios.get(`https://sap-prx.ugmk.com/ummc/permit/main`, {
       params: {
         propusk: req.query.propusk,

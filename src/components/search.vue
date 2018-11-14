@@ -4,7 +4,7 @@
     type="text"
     v-model="prp"
     @click='prp = ""'
-    :input="inp"
+    v-on:input="inp"
     :autofocus="true"
     class="main"
     placeholder="Кликните сюда и считайте карту"
@@ -24,6 +24,7 @@ export default {
   methods: {
     inp (v) {
       if (v === 'focusout') {
+        console.log('focusout', this.prp)
         this.prp = ''
       } else if (this.prp.length >= 10) {
         console.log(this.prp)
@@ -35,11 +36,11 @@ export default {
       }
     }
   },
-  watch: {
-    prp: function (v, ov) {
-      this.inp(v)
-    }
-  },
+  // watch: {
+  //   prp: function (v, ov) {
+  //     this.inp(v)
+  //   }
+  // },
   computed: {
     show: function () {
       console.log(this.$globalUserData)
