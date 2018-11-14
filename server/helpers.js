@@ -2,7 +2,6 @@ const axios = require('axios')
 const mysql = require('mysql2/promise')
 const jwt = require('jsonwebtoken')
 const config = require('./config')
-// получаем права из моей базы
 async function logger (json, jsonStatus, jsonKppId, req) {
   try {
     const token = req.headers.authorization.replace(/Bearer /g, '')
