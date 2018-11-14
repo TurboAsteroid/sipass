@@ -45,11 +45,12 @@ module.exports = {
     return allowedKpps
   },
   // возвращает список пропусков, доступных пользователю. на чтение доступны все
+  // status - 51/57/53
   getter: async function (status, req, config) {
     const kpps = await this.filterKPPS(config.kpps, req.locals.permissions)
     var sapResponse = []
     for (let i = 0; i < kpps.length; i++) {
-      let response = (await axios.get(`https://sap-prx.ugmk.com:443/ummc/permit/list`, {
+      let response = (await axios.get(`https://sap-prx.ugmk.com/ummc/permit/list`, {
         params: {
           status: status,
           ckeckpoint: parseInt(kpps[i].value),
@@ -65,5 +66,13 @@ module.exports = {
       }
     }
     return sapResponse
+  },
+  searchDocInListByDoknr: function (list, doc) {
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].DOKNR === doc.DATA_CARD.DOKNR) {
+        return true
+      }
+    }
+    return false
   }
 }

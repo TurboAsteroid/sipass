@@ -2,6 +2,7 @@
 const axios = require('axios')
 const mysql = require('mysql2/promise')
 const jwt = require('jsonwebtoken')
+const helpers = require('../helpers')
 module.exports = function (app, config, router) {
   async function logger (json, jsonStatus, jsonKppId, req) {
     try {
@@ -15,8 +16,7 @@ module.exports = function (app, config, router) {
     }
   }
   router.get('/bydoknr', async function (req, res) {
-    console.log(`https://sap-prx.ugmk.com:443/ummc/permit/main?doknr=${req.query.doknr}&ckeckpoint=${req.query.kpp}&sap-user=skud_uem&sap-password=sRec137K`)
-    let response = (await axios.get(`https://sap-prx.ugmk.com:443/ummc/permit/main`, {
+    let doc = (await axios.get(`https://sap-prx.ugmk.com/ummc/permit/main`, {
       params: {
         doknr: req.query.doknr,
         ckeckpoint: req.query.kpp,
@@ -25,9 +25,19 @@ module.exports = function (app, config, router) {
       }
     })
     ).data
-    logger(response, 1, req.query.kpp, req) // by doknr
-    console.log(response)
-    res.send(response)
+    if (doc.STATUS !== '') {
+      let list = await helpers.getter(doc.STATUS, req, config)
+      if (helpers.searchDocInListByDoknr(list, doc)) {
+        logger(doc, 1, req.query.kpp, req) // by doknr
+        res.send(doc)
+      } else {
+        logger(`404 ${doc}`, 1, req.query.kpp, req) // by doknr
+        res.sendStatus(404)
+      }
+    } else {
+      logger(`404 ${doc}`, 1, req.query.kpp, req) // by doknr
+      res.sendStatus(404)
+    }
   })
 
   return router

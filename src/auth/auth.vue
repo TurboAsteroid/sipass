@@ -11,7 +11,7 @@
         ></v-text-field>
         <v-text-field
           v-model="password"
-          :append-icon="show1 ? 'visibility_off' : 'visibility'"
+          :append-icon="show1 ? 'visibility' : 'visibility_off'"
           :rules="passwordRules"
           :type="show1 ? 'text' : 'password'"
           name="password"
