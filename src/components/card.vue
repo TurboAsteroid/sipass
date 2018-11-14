@@ -73,7 +73,7 @@
           <approveUsersList :doc="items" :headers="headers"/>
         </v-flex>
       </v-layout>
-      <cardFiles :documentfiles="items.DOCUMENTFILES"/>
+      <cardFiles :documentfiles="items.DOCUMENTFILES" :doknr="items.DATA_CARD.DOKNR"/>
     </v-container>
   </span>
 </template>
@@ -211,6 +211,15 @@ export default {
               value: `${this.M(this.items.DATA_CARD.VALID_DATE_FROM, 'YYYYMMDD').format('DD.MM.YYYY')} - ${this.M(this.items.DATA_CARD.VALID_DATE_TO, 'YYYYMMDD').format('DD.MM.YYYY')}`
             }
           ]
+          let note = ''
+          for (let i = 0; i < this.items.TEXTDATA.length; i++) {
+            if (this.items.TEXTDATA[i].FIELDNAME === 'NOTE') {
+              note += ' ' + this.items.TEXTDATA[i].TDLINE
+            }
+          }
+          if (note !== '') {
+            this.card.push({title: 'Заметка', value: note})
+          }
           this.hiUser = [
             {title: 'ФИО', value: this.items.DATA_CARD.INIT_PNM},
             {title: 'Должность', value: this.items.DATA_CARD.INIT_SNM},

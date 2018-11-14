@@ -25,12 +25,12 @@
 import axios from 'axios'
 export default {
   name: 'card_files',
-  props: ['documentfiles'],
+  props: ['documentfiles', 'donkr'],
   methods: {
     load (REC_EXT_ID, VERSION, FILENAME_DESCRIPTION) {
       REC_EXT_ID = REC_EXT_ID.replace(' ', '%20')
       axios({
-        url: `${this.$config.api}/filebyrecextidversion?rec_ext_id=${REC_EXT_ID}&version=${VERSION}`,
+        url: `${this.$config.api}/filebyrecextidversion?rec_ext_id=${REC_EXT_ID}&version=${VERSION}&doknr=${this.donkr}`,
         method: 'GET',
         responseType: 'blob' // important
       }).then((response) => {
