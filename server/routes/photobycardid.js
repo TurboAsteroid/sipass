@@ -8,7 +8,7 @@ module.exports = function (app, config, router) {
     try {
       const decoded = jwt.verify(jwtUser, config.jwtSecret)
       const connection = await mysql.createConnection(config.mariadb)
-      if (propusk === undefined) {
+      if (propusk === undefined || propusk === '' || propusk === null) {
         propusk = -1
       }
       await connection.execute(`INSERT INTO gs3.logs_photo (propusk,\`user\`,ip) VALUES ('${propusk}', '${decoded.login}', '${ip}');`)
@@ -21,7 +21,7 @@ module.exports = function (app, config, router) {
     const propusk = req.query.propusk
     try {
       await logger(propusk, req.query.jwt, req.connection.remoteAddress)
-      if (propusk !== undefined && propusk !== null) {
+      if (propusk !== undefined && propusk !== null && propusk !== '') {
         if (fs.existsSync(path.join(__dirname, `../data/${propusk}.jpg`))) {
           res.sendFile(path.join(__dirname, `../data/${propusk}.jpg`))
         } else {
@@ -32,6 +32,7 @@ module.exports = function (app, config, router) {
       }
     } catch (e) {
       console.log(e)
+      res.sendStatus(404)
     }
   })
 
