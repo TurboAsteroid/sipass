@@ -4,7 +4,12 @@ const jwt = require('jsonwebtoken')
 const config = require('./config')
 async function logger (json, jsonStatus, jsonKppId, req) {
   try {
-    const token = req.headers.authorization.replace(/Bearer /g, '')
+    let token
+    if (req.query.jwt) {
+      token = req.query.jwt
+    } else {
+      token = req.headers.authorization.replace(/Bearer /g, '')
+    }
     const decoded = jwt.verify(token, config.jwtSecret)
     const connection = await mysql.createConnection(config.mariadb)
     await connection.execute(`INSERT INTO gs3.logs_get_data (json,\`user\`,ip,json_status,json_kpp_id, url) VALUES ('${JSON.stringify(json)}', '${decoded.login}', '${req.connection.remoteAddress}', '${jsonStatus}', '${jsonKppId}', '${req.originalUrl}');`)
