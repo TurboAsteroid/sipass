@@ -11,7 +11,7 @@ import 'es6-promise/auto'
 import auth from '@/auth'
 auth.initAuth()
 Vue.prototype.$appName = 'Разовый пропуск'
-Vue.prototype.$appVersion = 'v3.r9'
+Vue.prototype.$appVersion = 'v3.r10'
 try {
   Vue.prototype.$globalUserData = {permissions: {}, kpps: []}
   if (localStorage.getItem('globalUserData') !== 'undefined') {
@@ -23,7 +23,7 @@ try {
 }
 Vue.use(Vuetify)
 Vue.prototype.$config = {
-  api: 'https://10.1.100.161:8686'
+  api: 'https://apps.elem.ru:8686'
 }
 Vue.config.productionTip = false
 

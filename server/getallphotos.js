@@ -68,67 +68,70 @@ module.exports = async function (app, config, router) {
       }
     }
     if (changedFlag) {
-      // открываем пул подключения к серверу сипасса
-      const pool = new sql.ConnectionPool(config.configSiPass)
-      const connection = await mysql.createConnection(config.mariadb)
-      pool.on('error', err => {
-        console.log(new Date() + '::: sql errors ', err)
-      })
-      try {
-        await pool.connect()
-        let result = await pool.request().query(sqlReq)
-        if (result.recordset.length > 0) {
-          const last = result.recordset.length
-          for (var c = 0; c < last; c++) {
-            if (result.recordset[c].emp_id === 'null') {
-              result.recordset[c].emp_id = -1
-            }
-            try {
-              if (result.recordset[c].facility.toString() === '0') {
-                result.recordset[c].facility = '215'
+      try {// открываем пул подключения к серверу сипасса
+        const pool = new sql.ConnectionPool(config.configSiPass)
+        const connection = await mysql.createConnection(config.mariadb)
+        pool.on('error', err => {
+          console.log(new Date() + '::: sql errors ', err)
+        })
+        try {
+          await pool.connect()
+          let result = await pool.request().query(sqlReq)
+          if (result.recordset.length > 0) {
+            const last = result.recordset.length
+            for (var c = 0; c < last; c++) {
+              if (result.recordset[c].emp_id === 'null') {
+                result.recordset[c].emp_id = -1
               }
-              let fullCardN = (result.recordset[c].facility.toString() + result.recordset[c].number.toString())
-              if (fullCardN.length < 10) {
-                let zero = 10 - parseInt(fullCardN.length)
-                for (let f = 0; f < zero; f++) {
-                  fullCardN = '0' + fullCardN
+              try {
+                if (result.recordset[c].facility.toString() === '0') {
+                  result.recordset[c].facility = '215'
                 }
+                let fullCardN = (result.recordset[c].facility.toString() + result.recordset[c].number.toString())
+                if (fullCardN.length < 10) {
+                  let zero = 10 - parseInt(fullCardN.length)
+                  for (let f = 0; f < zero; f++) {
+                    fullCardN = '0' + fullCardN
+                  }
+                }
+                var photo = await pool.request().query(`SELECT BulkColumn FROM OPENROWSET(BULK '` + result.recordset[c].path +
+                  `', SINGLE_BLOB) AS Contents;`)
+                // пишем историю
+                let query = 'INSERT INTO gs3.history SET ? ON DUPLICATE KEY UPDATE doknr = doknr'
+                let values = {
+                  doknr: dataAll[c].DOKNR,
+                  fullCardN: fullCardN,
+                  json: JSON.stringify(dataAll[c]),
+                  photo: photo.recordset[0].BulkColumn
+                }
+                connection.query(query, values)
+                var wstream = fs.createWriteStream(path.join(__dirname, `data/${fullCardN.toString()}.jpg`))
+                if (photo.recordset[0].BulkColumn.length !== 366704) {
+                  await wstream.write(Buffer.from(photo.recordset[0].BulkColumn))
+                  console.log(`${new Date()} ::: на фс записана фотка карточки fullCardN: ${fullCardN}`)
+                } else {
+                  await fs.copyFileSync(path.join(__dirname, `default.jpg`), path.join(__dirname, `data/${fullCardN.toString()}.jpg`))
+                  console.error(`${new Date()} ::: на фс записана фотка карточки fullCardN: ${fullCardN}`)
+                }
+                await logger(result.recordset[c].emp_id, 'done', fullCardN, connection)
+              } catch (err) {
+                console.error(`${new Date()} ::: ошибка работы с фоткой ${err}`)
+                await logger(result.recordset[c].emp_id, (err.toString().replaceAll('/', '_')).replaceAll('\'', ''), -1, connection)
               }
-              var photo = await pool.request().query(`SELECT BulkColumn FROM OPENROWSET(BULK '` + result.recordset[c].path +
-                `', SINGLE_BLOB) AS Contents;`)
-              // пишем историю
-              let query = 'INSERT INTO gs3.history SET ? ON DUPLICATE KEY UPDATE doknr = doknr'
-              let values = {
-                doknr: dataAll[c].DOKNR,
-                fullCardN: fullCardN,
-                json: JSON.stringify(dataAll[c]),
-                photo: photo.recordset[0].BulkColumn
-              }
-              connection.query(query, values)
-              var wstream = fs.createWriteStream(path.join(__dirname, `data/${fullCardN.toString()}.jpg`))
-              if (photo.recordset[0].BulkColumn.length !== 366704) {
-                await wstream.write(Buffer.from(photo.recordset[0].BulkColumn))
-                console.log(`${new Date()} ::: на фс записана фотка карточки fullCardN: ${fullCardN}`)
-              } else {
-                await fs.copyFileSync(path.join(__dirname, `default.jpg`), path.join(__dirname, `data/${fullCardN.toString()}.jpg`))
-                console.error(`${new Date()} ::: на фс записана фотка карточки fullCardN: ${fullCardN}`)
-              }
-              await logger(result.recordset[c].emp_id, 'done', fullCardN, connection)
-            } catch (err) {
-              console.error(`${new Date()} ::: ошибка работы с фоткой ${err}`)
-              await logger(result.recordset[c].emp_id, (err.toString().replaceAll('/', '_')).replaceAll('\'', ''), -1, connection)
+              wstream.end()
             }
-            wstream.end()
+            console.log(new Date() + '::: done')
           }
-          console.log(new Date() + '::: done')
+        } catch (err) {
+          console.log(new Date() + '::: ' + err)
+          await logger(-1, (err.toString().replaceAll('/', '_')).replaceAll('\'', ''), -1, connection)
+        } finally {
+          pool.close()
+          connection.end()
+          console.log(new Date() + '::: pool.close() done')
         }
-      } catch (err) {
-        console.log(new Date() + '::: ' + err)
-        await logger(-1, (err.toString().replaceAll('/', '_')).replaceAll('\'', ''), -1, connection)
-      } finally {
-        pool.close()
-        connection.end()
-        console.log(new Date() + '::: pool.close() done')
+      } catch (e) {
+        console.error(e)
       }
     }
   }

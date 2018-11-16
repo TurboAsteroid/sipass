@@ -24,10 +24,8 @@ export default {
   methods: {
     inp (v) {
       if (v === 'focusout') {
-        console.log('focusout', this.prp)
         this.prp = ''
       } else if (this.prp.length >= 10) {
-        console.log(this.prp)
         this.$router.push({
           name: 'card',
           params: {kpp: getRandomInt(-10000000, -2), doknr: getRandomInt(-10000000, -2), propusk: this.prp}
@@ -35,7 +33,7 @@ export default {
         this.prp = ''
       }
     }
-  },
+  }
   // watch: {
   //   prp: function (v, ov) {
   //     this.inp(v)

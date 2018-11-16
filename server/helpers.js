@@ -36,7 +36,6 @@ module.exports = {
     for (let i = 0; i < kpps.length; i++) {
       for (let j = 0; j < Object.keys(permissions).length; j++) {
         if (kpps[i].value === Object.keys(permissions)[j]) { // strings!!!
-          console.log(kpps[i])
           allowedKpps.push(kpps[i])
         }
       }
