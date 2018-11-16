@@ -104,7 +104,7 @@ module.exports = function (app, config, router) {
             let permissions = await helpers.userPermissions((req.body.user.login.split('@'))[0], config.mariadb)
             if (Object.keys(permissions).length > 0) {
               let allowedKpps = helpers.filterKPPS(config.kpps, permissions)
-              allowedKpps.push({value: 'Все', text: 'Все'})
+              allowedKpps.push({text: 'Все доступные', value: 'all'})
               console.log(allowedKpps)
               let token = await jwt.sign({
                 login: req.body.user.login,
