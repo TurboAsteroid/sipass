@@ -1,8 +1,8 @@
 <template>
-  <v-layout align-start justify-start column fill-height>
-    <v-btn color="info" flat @click="approval"><i class="material-icons">done</i> На согласовании</v-btn>
-    <v-btn color="info" flat @click="approved"><i class="material-icons">done_all</i>&nbsp;Согласованы</v-btn>
-    <v-btn color="info" flat @click="inside"><i class="material-icons">location_on</i>&nbsp;На териитории</v-btn>
+  <v-layout align-start justify-start column style="padding-top: 18px">
+    <v-btn color="info" flat @click="approval" block><i class="material-icons">done</i>&nbsp;&nbsp;&nbsp;На согласовании</v-btn>
+    <v-btn color="info" flat @click="approved" block><i class="material-icons">done_all</i>&nbsp;&nbsp;&nbsp;Согласованы</v-btn>
+    <v-btn color="info" flat @click="inside" block><i class="material-icons">location_on</i>&nbsp;&nbsp;&nbsp;На териитории</v-btn>
   </v-layout>
 </template>
 
