@@ -1,6 +1,6 @@
 'use strict'
+const DataBase = require('../db')
 const path = require('path')
-const mysql = require('mysql2/promise')
 const jwt = require('jsonwebtoken')
 const fs = require('fs')
 const helpers = require('../helpers')
@@ -9,12 +9,10 @@ module.exports = function (app, config, router) {
   async function logger (propusk, jwtUser, ip) {
     try {
       const decoded = jwt.verify(jwtUser, config.jwtSecret)
-      const connection = await mysql.createConnection(config.mariadb)
       if (propusk === undefined || propusk === '' || propusk === null) {
         propusk = -1
       }
-      await connection.execute(`INSERT INTO gs3.logs_photo (propusk,\`user\`,ip) VALUES ('${propusk}', '${decoded.login}', '${ip}');`)
-      await connection.end()
+      await DataBase.Execute(`INSERT INTO gs3.logs_photo (propusk,\`user\`,ip) VALUES ('${propusk}', '${decoded.login}', '${ip}');`)
     } catch (e) {
       console.error(e)
     }
