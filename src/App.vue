@@ -15,17 +15,19 @@
         </v-card>
       </v-container>
     </v-content>
-    <v-footer app>{{$appVersion}}</v-footer>
+    <v-footer app>{{$appVersion}}
+      <help v-if="exitButtonIsActive"/></v-footer>
   </v-app>
 </template>
 
 <script>
 import navigation from '@/components/navigation'
 import search from '@/components/search'
+import help from '@/components/help'
 import { mapGetters } from 'vuex'
 export default {
   name: 'App',
-  components: {navigation, search},
+  components: {navigation, search, help},
   data: () => ({
     drawer: null
   }),

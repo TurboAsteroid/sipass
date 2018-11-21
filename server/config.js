@@ -1,5 +1,7 @@
 module.exports = {
   mariadb: {
+    connectionLimit: 10000,
+    waitForConnections: true,
     host: '10.1.255.208',
     port: '3333',
     database: 'gs3',

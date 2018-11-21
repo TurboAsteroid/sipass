@@ -1,5 +1,5 @@
 const axios = require('axios')
-const mysql = require('mysql2/promise')
+const DataBase = require('./db')
 const jwt = require('jsonwebtoken')
 const config = require('./config')
 async function logger (json, jsonStatus, jsonKppId, req) {
@@ -11,9 +11,7 @@ async function logger (json, jsonStatus, jsonKppId, req) {
       token = req.headers.authorization.replace(/Bearer /g, '')
     }
     const decoded = jwt.verify(token, config.jwtSecret)
-    const connection = await mysql.createConnection(config.mariadb)
-    await connection.execute(`INSERT INTO gs3.logs_get_data (json,\`user\`,ip,json_status,json_kpp_id, url) VALUES ('${JSON.stringify(json)}', '${decoded.login}', '${req.connection.remoteAddress}', '${jsonStatus}', '${jsonKppId}', '${req.originalUrl}');`)
-    await connection.end()
+    await DataBase.Execute(`INSERT INTO gs3.logs_get_data (json,\`user\`,ip,json_status,json_kpp_id, url) VALUES ('${JSON.stringify(json)}', '${decoded.login}', '${req.connection.remoteAddress}', '${jsonStatus}', '${jsonKppId}', '${req.originalUrl}');`)
   } catch (e) {
     console.error(e)
   }
@@ -21,9 +19,7 @@ async function logger (json, jsonStatus, jsonKppId, req) {
 module.exports = {
   userPermissions: async function (login, sqlConfig) {
     let user = (login.split('@'))[0]
-    let connection = await mysql.createConnection(sqlConfig)
-    let permissionsSQL = await connection.query(`select * from permissions where user = '${user}'`)
-    await connection.end()
+    let permissionsSQL = await DataBase.Query(`select * from permissions where user = '${user}'`)
     delete permissionsSQL[0][0].id
     delete permissionsSQL[0][0].user
     let len = Object.keys(permissionsSQL[0][0]).length
