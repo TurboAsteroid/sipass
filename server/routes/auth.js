@@ -1,13 +1,11 @@
 'use strict'
-const mysql = require('mysql2/promise')
+const DataBase = require('../db')
 const _ = require('underscore')
 const helpers = require('../helpers')
 module.exports = function (app, config, router) {
   async function logger (user, message, url, req) {
     try {
-      const connection = await mysql.createConnection(config.mariadb)
-      await connection.execute(`INSERT INTO gs3.logs_auth(\`user\`, message, url, ip) VALUES('${user}', '${message}', '${url}', '${req.connection.remoteAddress}');`)
-      await connection.end()
+      await DataBase.Execute(`INSERT INTO gs3.logs_auth(\`user\`, message, url, ip) VALUES('${user}', '${message}', '${url}', '${req.connection.remoteAddress}');`)
     } catch (e) {
       console.error(e)
     }

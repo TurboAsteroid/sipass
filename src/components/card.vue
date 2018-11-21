@@ -142,7 +142,7 @@ export default {
         this.$router.push('/404')
       } else {
         try {
-          this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}&propusk=${this.items.DATA_CARD.ZPROPUSK}&time=${new Date()}`
+          this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}&propusk=${this.items.DATA_CARD.ZPROPUSK}&random=${Math.random()}`
           for (let i = 0; i < this.items.APPRDATA.length; i++) {
             let st = this.items.APPRDATA[i].APRST
             if (this.items.STATUS === '53') {
