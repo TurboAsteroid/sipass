@@ -31,8 +31,8 @@ module.exports = {
     {value: '11008', text: 'Инженерный корпус'}
   ],
   keys: {
-    privkey: '/home/nightwelf/apps.elem.ru/privkey1.pem',
-    cert: '/home/nightwelf/apps.elem.ru/cert1.pem',
-    chain: '/home/nightwelf/apps.elem.ru/chain1.pem'
+    privkey: '/etc/letsencrypt/live/apps.elem.ru/privkey.pem',
+    cert: '/etc/letsencrypt/live/apps.elem.ru/cert.pem',
+    chain: '/etc/letsencrypt/live/apps.elem.ru/chain.pem'
   }
 }
