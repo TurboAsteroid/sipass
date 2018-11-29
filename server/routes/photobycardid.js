@@ -12,7 +12,8 @@ module.exports = function (app, config, router) {
       if (propusk === undefined || propusk === '' || propusk === null) {
         propusk = -1
       }
-      await DataBase.Execute(`INSERT INTO gs3.logs_photo (propusk,\`user\`,ip) VALUES ('${propusk}', '${decoded.login}', '${ip}');`)
+      // await DataBase.Execute(`INSERT INTO gs3.logs_photo (propusk,\`user\`,ip) VALUES ('${propusk}', '${decoded.login}', '${ip}');`)
+      await DataBase.Q(`INSERT INTO gs3.logs_photo SET ?`, { propusk: propusk, user: decoded.login, ip: ip })
     } catch (e) {
       console.error(e)
     }

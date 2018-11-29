@@ -18,12 +18,12 @@ DataBase.InitDB = async function () {
     DataBase.db = await mysql.createConnection(config.mariadb)
 
     DataBase.db.on('error', async function (err) {
-      console.warn(new Date(), '/db.js', 'connection lost', err)
+      console.warn(new Date(), 'db.js', 'connection lost', err)
       await DataBase.Disconnect()
       await DataBase.InitDB()
     })
   } catch (exception) {
-    console.warn(new Date(), '/db.js', "can't create connection", exception)
+    console.warn(new Date(), 'db.js', "can't create connection", exception)
   }
 }
 
@@ -38,17 +38,17 @@ DataBase.Execute = async function (request, params) {
     let connection = await DataBase.GetDB()
     return await connection.execute(request, params)
   } catch (exception) {
-    console.warn(new Date(), '/db.js', "can't execute request", exception, await DataBase.GetDB())
+    console.warn(new Date(), 'db.js', "can't execute request", exception, await DataBase.GetDB())
     return []
   }
 }
 
-DataBase.Query = async function (request, params) {
+DataBase.Q = async function (query, values) {
   try {
     let connection = await DataBase.GetDB()
-    return await connection.query(request, params)
+    return await connection.query(query, values)
   } catch (exception) {
-    console.warn(new Date(), '/db.js', "can't query request", exception, await DataBase.GetDB())
+    console.warn(new Date(), 'db.js', "can't query request", exception, await DataBase.GetDB())
     return []
   }
 }
