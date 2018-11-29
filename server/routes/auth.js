@@ -5,7 +5,8 @@ const helpers = require('../helpers')
 module.exports = function (app, config, router) {
   async function logger (user, message, url, req) {
     try {
-      await DataBase.Execute(`INSERT INTO gs3.logs_auth(\`user\`, message, url, ip) VALUES('${user}', '${message}', '${url}', '${req.connection.remoteAddress}');`)
+      // await DataBase.Execute(`INSERT INTO gs3.logs_auth(\`user\`, message, url, ip) VALUES('${user}', '${message}', '${url}', '${req.connection.remoteAddress}');`)
+      await DataBase.Q(`INSERT INTO gs3.logs_auth SET ?`, { user: user, message: message, url: url, ip: req.connection.remoteAddress })
     } catch (e) {
       console.error(e)
     }
