@@ -10,8 +10,11 @@ async function logger (json, jsonStatus, jsonKppId, req) {
     } else {
       token = req.headers.authorization.replace(/Bearer /g, '')
     }
-    const decoded = jwt.verify(token, config.jwtSecret)
-    await DataBase.Execute(`INSERT INTO gs3.logs_get_data (json,\`user\`,ip,json_status,json_kpp_id, url) VALUES ('${JSON.stringify(json)}', '${decoded.login}', '${req.connection.remoteAddress}', '${jsonStatus}', '${jsonKppId}', '${req.originalUrl}');`)
+    // await DataBase.Execute(`INSERT INTO gs3.logs_get_data (json,\`user\`,ip,json_status,json_kpp_id, url) VALUES ('${JSON.stringify(json)}', '${decoded.login}', '${req.connection.remoteAddress}', '${jsonStatus}', '${jsonKppId}', '${req.originalUrl}');`)
+    await DataBase.Q(
+      `INSERT INTO gs3.logs_get_data SET ?`,
+      { json: JSON.stringify(json), user: (jwt.verify(token, config.jwtSecret)).login, ip: req.connection.remoteAddress, json_status: jsonStatus, json_kpp_id: jsonKppId, url: req.originalUrl }
+    )
   } catch (e) {
     console.error(e)
   }
@@ -19,7 +22,7 @@ async function logger (json, jsonStatus, jsonKppId, req) {
 module.exports = {
   userPermissions: async function (login, sqlConfig) {
     let user = (login.split('@'))[0]
-    let permissionsSQL = await DataBase.Query(`select * from permissions where user = '${user}'`)
+    let permissionsSQL = await DataBase.Q(`select * from permissions where user = '${user}'`)
     delete permissionsSQL[0][0].id
     delete permissionsSQL[0][0].user
     let len = Object.keys(permissionsSQL[0][0]).length
