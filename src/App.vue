@@ -16,7 +16,8 @@
       </v-container>
     </v-content>
     <v-footer app>{{$appVersion}}
-      <help v-if="exitButtonIsActive"/></v-footer>
+      <!--<help v-if="exitButtonIsActive"/>-->
+    </v-footer>
   </v-app>
 </template>
 

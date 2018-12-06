@@ -32,6 +32,7 @@
                     </v-data-table>
                   </v-card>
                 </v-flex>
+                <v-flex xs12 d-flex><h4 v-if="status.color">{{status.additional.full}}</h4></v-flex>
               </v-layout>
             </v-flex>
             <v-flex xs12 md12 d-flex>
@@ -100,7 +101,7 @@ export default {
       card: [],
       hiUser: [],
       writeUser: [],
-      status: { text: '', value: 1 },
+      status: { text: '', value: 1, additional: { text: '', full: '' } },
       photobycardid: '',
       objkey: ''
     }
@@ -149,27 +150,27 @@ export default {
               if (st === '1') {
                 this.items.APPRDATA[i].APRST = 'Согласован'
                 if (this.status.value < 1) {
-                  this.status = {text: 'согласован', value: 1, color: 'red'}
+                  this.status = {text: 'согласован', value: 1, color: 'red', additional: {text: 'поставил(-а) отметку', full: ''}}
                 }
               } else if (st === 'S') {
                 this.items.APPRDATA[i].APRST = 'Согласование'
                 if (this.status.value < 2) {
-                  this.status = {text: 'согласование', value: 2, color: 'red'}
+                  this.status = {text: 'согласование', value: 2, color: 'red', additional: {text: 'не поставил(-а) отметку', full: ''}}
                 }
               } else if (st === 'IN') {
                 this.items.APPRDATA[i].APRST = 'Вход'
                 if (this.status.value < 3) {
-                  this.status = {text: 'отметка вход', value: 3, color: 'red'}
+                  this.status = {text: 'отметка вход', value: 3, color: 'red', additional: {text: 'поставил(-а) отметку', full: ''}}
                 }
               } else if (st === 'OUT') {
                 this.items.APPRDATA[i].APRST = 'Выход'
                 if (this.status.value < 4) {
-                  this.status = {text: 'отметка выход', value: 4, color: 'green'}
+                  this.status = {text: 'отметка выход', value: 4, color: 'green', additional: {text: 'поставил(-а) отметку', full: ''}}
                 }
               } else if (st === 'P') {
                 this.items.APPRDATA[i].APRST = 'Нет'
                 if (this.status.value < 5) {
-                  this.status = {text: 'нет отметки', value: 5, color: 'red'}
+                  this.status = {text: 'нет отметки', value: 5, color: 'red', additional: {text: 'не поставил(-а) отметку', full: ''}}
                 }
               }
             } else {
@@ -181,22 +182,22 @@ export default {
               } else if (st === 'S') {
                 this.items.APPRDATA[i].APRST = 'Согласование'
                 if (this.status.value < 2) {
-                  this.status = {text: 'согласование', value: 2}
+                  this.status = {text: 'согласование', value: 2, additional: {text: 'поставил(-а) отметку', full: ''}}
                 }
               } else if (st === 'IN') {
                 this.items.APPRDATA[i].APRST = 'Вход'
                 if (this.status.value < 3) {
-                  this.status = {text: 'отметка вход', value: 3}
+                  this.status = {text: 'отметка вход', value: 3, additional: {text: 'поставил(-а) отметку', full: ''}}
                 }
               } else if (st === 'OUT') {
                 this.items.APPRDATA[i].APRST = 'Выход'
                 if (this.status.value < 4) {
-                  this.status = {text: 'отметка выход', value: 4}
+                  this.status = {text: 'отметка выход', value: 4, additional: {text: 'поставил(-а) отметку', full: ''}}
                 }
               } else if (st === 'P') {
                 this.items.APPRDATA[i].APRST = 'Нет'
                 if (this.status.value < 5) {
-                  this.status = {text: 'нет отметки', value: 5}
+                  this.status = {text: 'нет отметки', value: 5, additional: {text: 'не поставил(-а) отметку', full: ''}}
                 }
               }
             }
@@ -231,7 +232,14 @@ export default {
             {title: 'Подразделение', value: this.items.DATA_CARD.AUTHOR_ONM}
           ]
           this.objkey = this.items.DATA_CARD.DOKAR + this.items.DATA_CARD.DOKNR + this.items.DATA_CARD.DOKVR + this.items.DATA_CARD.DOKTL
+          this.items.APPRDATA.forEach(it => {
+            console.log(it.APRROLE)
+            if (it.APRROLE === 'IW') {
+              this.status.additional.full = `${it.APRNAME_FULL} ${this.status.additional.text}`
+            }
+          })
         } catch (e) {
+          console.error(e)
           this.$router.push('/404')
         }
       }
