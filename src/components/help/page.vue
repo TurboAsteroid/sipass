@@ -1,5 +1,7 @@
 <template>
-  <div>Раздел помощи в разработке</div>
+  <div>
+
+  </div>
 </template>
 
 <script>
