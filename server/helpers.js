@@ -56,8 +56,8 @@ module.exports = {
         params: {
           status: status,
           ckeckpoint: parseInt(kpps[i].value),
-          'sap-user': 'skud_uem',
-          'sap-password': 'sRec137K'
+          'sap-user': config.sap.u,
+          'sap-password': config.sap.p
         }
       })
       ).data
