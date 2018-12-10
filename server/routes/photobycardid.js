@@ -18,7 +18,7 @@ module.exports = function (app, config, router) {
       console.error(e)
     }
   }
-  router.get('/photobycardid', async function (req, res) {
+  router.get('/photobycardid_old', async function (req, res) {
     const propusk = req.query.propusk
     try {
       await logger(propusk, req.query.jwt, req.connection.remoteAddress)
@@ -37,6 +37,38 @@ module.exports = function (app, config, router) {
             res.sendFile(path.join(__dirname, '../default.jpg')) // доступа нет но файл есть на диске
           } else {
             res.sendFile(path.join(__dirname, `../data/${propusk}.jpg`)) // доступ есть и файл есть на диске
+          }
+        } else {
+          res.sendFile(path.join(__dirname, '../default.jpg')) // файла нет на диске
+        }
+      } else {
+        res.sendFile(path.join(__dirname, '../default.jpg')) // ошибка в запросе
+      }
+    } catch (e) {
+      console.log(e)
+      res.sendStatus(404)
+    }
+  })
+
+  router.get('/photobycardid', async function (req, res) {
+    const propusk = req.query.propusk
+    try {
+      await logger(propusk, req.query.jwt, req.connection.remoteAddress)
+      if (propusk !== undefined && propusk !== null && propusk !== '') {
+        // забрать весь кэш
+        const cache = await DataBase.Q(`select * from gs3.cache where fullCardN = ${propusk}`)
+        if (cache[0].length > 0) {
+          const kpps = await helpers.filterKPPS(config.kpps, req.locals.permissions) // доступные кпп
+          let allowed = kpps.filter(it => cache[0][0].KPP.toString() === it.value)
+          // посмотреть есть вообще ли доступ к пропуску
+          let doc = JSON.parse(cache[0][0].json)
+          if (doc.STATUS !== '' && allowed.length > 0) {
+            let ret = await helpers.searchDocInListByDoknr([doc], {DATA_CARD: doc})
+            if (ret.result) {
+              res.send(cache[0][0].photo).end() // доступ есть
+            } else {
+              res.sendStatus(403)
+            }
           }
         } else {
           res.sendFile(path.join(__dirname, '../default.jpg')) // файла нет на диске
