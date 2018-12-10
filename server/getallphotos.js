@@ -19,7 +19,7 @@ module.exports = function (app, config, router) {
       console.error(e)
     }
   }
-  async function main () {
+  async function main_old () {
     const kpps = config.kpps
     // получаем все листы и скидываем в массив номера всех карточек
     const cards = [] // номера всех карточек для всех пропусков со статусом 53
@@ -88,11 +88,12 @@ module.exports = function (app, config, router) {
                 var photo = await pool.request().query(`SELECT BulkColumn FROM OPENROWSET(BULK '` + result.recordset[c].path +
                   `', SINGLE_BLOB) AS Contents;`)
                 // пишем историю
-                let query = 'INSERT INTO gs3.history SET ? ON DUPLICATE KEY UPDATE doknr = doknr'
+                let query = 'INSERT INTO gs3.history SET ? ON DUPLICATE KEY UPDATE doknr = doknr, fullCardN = fullCardN, photo = photo, json = json;'
                 let values = {
                   doknr: dataAll[c].DOKNR,
                   fullCardN: result.recordset[c].fullCardN,
-                  json: JSON.stringify(dataAll[c])
+                  json: JSON.stringify(dataAll[c]),
+                  photo: photo.recordset[0].BulkColumn
                 }
                 await DataBase.Q(query, values)
                 if (await fs.existsSync(path.join(__dirname, `data/${result.recordset[c].fullCardN.toString()}.jpg`))) {
@@ -132,8 +133,125 @@ module.exports = function (app, config, router) {
     main()
   })
 
+  async function main () {
+    const kpps = config.kpps
+    // получаем все листы и скидываем в массив номера всех карточек
+    const cards = [] // номера всех карточек для всех пропусков со статусом 53
+    const dataAll = [] // все пропуски на всех кпп со статусом 53
+    for (let i = 0; i < kpps.length; i++) {
+      let dataKpp = (await axios.get(`https://sap-prx.ugmk.com/ummc/permit/list?status=53&ckeckpoint=${parseInt(kpps[i].value)}`)).data
+      for (let j = 0; j < dataKpp.length; j++) {
+        dataKpp[j].KPP = parseInt(kpps[i].value)
+        dataAll.push(dataKpp[j])
+      }
+      for (let j = 0; j < dataAll.length; j++) {
+        for (let s = 0; s < dataAll[j].ZPROPUSK.length; s++) {
+          if (dataAll[j].ZPROPUSK[s] === '2' && dataAll[j].ZPROPUSK[s + 1] === '1' && dataAll[j].ZPROPUSK[s + 2] === '5') {
+            let numberForSqlReq = ''
+            for (let m = s + 3; m < dataAll[j].ZPROPUSK.length; m++) {
+              numberForSqlReq += dataAll[j].ZPROPUSK[m]
+            }
+            cards.push(numberForSqlReq)
+            break
+          }
+        }
+      }
+    }
+    // формируем запрос на получение фоток текущих карточек
+    let sqlReq = `
+        SELECT
+          el.emp_id,
+          'C:\\Program Files (x86)\\SiPass integrated\\DataFolder\\Drawing\\EmployeeImages\\' +
+          SUBSTRING(CONVERT(varchar, CONVERT(VARBINARY(8), el.emp_id),1),3,2) + '\\' +
+          SUBSTRING(CONVERT(varchar, CONVERT(VARBINARY(8), el.emp_id),1),5,2) + '\\' +
+          SUBSTRING(CONVERT(varchar, CONVERT(VARBINARY(8), el.emp_id),1),7,2) + '\\' +
+          SUBSTRING(CONVERT(varchar, CONVERT(VARBINARY(8), el.emp_id),1),3,8) + 'P.jpg' as path,
+          cl_1.number,
+          cl_1.facility,
+          '00' + CONVERT(varchar, 21500000 + cast(cl_1.number as bigint)) as fullCardN
+        FROM asco.employee_legacy AS el 
+          INNER JOIN asco.cardholder AS ch ON el.cardholder_id = ch.cardholder_id
+          LEFT OUTER JOIN asco.card_physical AS cp_1 ON ch.cardholder_id = cp_1.cardholder_id AND cp_1.rank = 1
+          LEFT OUTER JOIN asco.card_logical AS cl_1 ON cp_1.card_physical_id = cl_1.card_physical_id AND cl_1.rank = 1 where`
+    let changedFlag = false
+    for (let i = 0; i < cards.length; i++) {
+      if (cards.length === i + 1) {
+        sqlReq += ` number = ${cards[i]}`
+        changedFlag = true
+      } else {
+        sqlReq += ` number = ${cards[i]} or`
+        changedFlag = true
+      }
+    }
+    if (changedFlag) {
+      try {
+        // открываем пул подключения к серверу сипасса
+        const pool = new sql.ConnectionPool(config.configSiPass)
+        pool.on('error', err => {
+          console.log(new Date() + '::: sql errors ', err)
+        })
+        try {
+          await DataBase.Q('delete from gs3.cache', null) // чистим кэш
+          console.log(`кэш вычищен`)
+          await pool.connect()
+          let result = await pool.request().query(sqlReq)
+          if (result.recordset.length > 0) {
+            const last = result.recordset.length
+            for (var c = 0; c < last; c++) {
+              if (result.recordset[c].emp_id === 'null') {
+                result.recordset[c].emp_id = -1
+              }
+              try {
+                var photo = await pool.request().query(`SELECT BulkColumn FROM OPENROWSET(BULK '${result.recordset[c].path}', SINGLE_BLOB) AS Contents;`)
+                // пишем историю
+                let query = 'INSERT INTO gs3.history SET ? ON DUPLICATE KEY UPDATE doknr = doknr, fullCardN = fullCardN, photo = photo, json = json;'
+                let values = {
+                  doknr: dataAll[c].DOKNR,
+                  fullCardN: result.recordset[c].fullCardN,
+                  json: JSON.stringify(dataAll[c]),
+                  photo: photo.recordset[0].BulkColumn
+                }
+                let r1 = await DataBase.Q(query, values)
+                console.log(`insert history ${r1[0].insertId} ${r1[0].affectedRows}`)
+                query = 'INSERT INTO gs3.cache SET ? ON DUPLICATE KEY UPDATE doknr = doknr, fullCardN = fullCardN, photo = photo, json = json, kpp = kpp;'
+                values = {
+                  doknr: dataAll[c].DOKNR,
+                  fullCardN: result.recordset[c].fullCardN,
+                  photo: photo.recordset[0].BulkColumn,
+                  json: JSON.stringify(dataAll[c]),
+                  KPP: dataAll[c].KPP
+                }
+                let r2 = await DataBase.Q(query, values)
+
+                console.log(new Date() + `::: карта ${result.recordset[c].fullCardN} фотка и данные отправлены в кэш ${r2[0].insertId} ${r2[0].affectedRows}`)
+                await logger(result.recordset[c].emp_id, 'фотка и данные отправлены в кэш', result.recordset[c].fullCardN)
+              } catch (err) {
+                console.error(`${new Date()} ::: ошибка работы с фоткой ${err}`)
+                await logger(result.recordset[c].emp_id, (err.toString().replaceAll('/', '_')).replaceAll('\'', ''), -1)
+              }
+            }
+            console.log(new Date() + '::: done')
+          }
+        } catch (err) {
+          console.log(new Date() + '::: ' + err)
+          await logger(-1, (err.toString().replaceAll('/', '_')).replaceAll('\'', ''), -1)
+        } finally {
+          pool.close()
+          console.log(new Date() + '::: pool.close() done')
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }
+
   router.get('/getallphotos', async function (req, res) {
     await main()
+    res.sendStatus(200)
+  })
+
+  router.get('/getallphotos2', async function (req, res) {
+    await main2()
     res.sendStatus(200)
   })
 }
