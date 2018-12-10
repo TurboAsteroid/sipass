@@ -28,8 +28,8 @@ module.exports = function (app, config, router) {
           let doc = (await axios.get(`https://sap-prx.ugmk.com/ummc/permit/main`, {
             params: {
               propusk: req.query.propusk,
-              'sap-user': 'skud_uem',
-              'sap-password': 'sRec137K'
+              'sap-user': config.sap.u,
+              'sap-password': config.sap.p
             }
           })).data
           let ret = await helpers.isUserHasAccessToDoc(doc, req, config)

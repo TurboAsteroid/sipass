@@ -85,16 +85,6 @@ module.exports = function (app, config, router) {
                 result.recordset[c].emp_id = -1
               }
               try {
-                // if (result.recordset[c].facility.toString() === '0') {
-                //   result.recordset[c].facility = '215'
-                // }
-                // let fullCardN = (result.recordset[c].facility.toString() + result.recordset[c].number.toString())
-                // if (fullCardN.length < 10) {
-                //   let zero = 10 - parseInt(fullCardN.length)
-                //   for (let f = 0; f < zero; f++) {
-                //     fullCardN = '0' + fullCardN
-                //   }
-                // }
                 var photo = await pool.request().query(`SELECT BulkColumn FROM OPENROWSET(BULK '` + result.recordset[c].path +
                   `', SINGLE_BLOB) AS Contents;`)
                 // пишем историю
@@ -103,12 +93,7 @@ module.exports = function (app, config, router) {
                   doknr: dataAll[c].DOKNR,
                   fullCardN: result.recordset[c].fullCardN,
                   json: JSON.stringify(dataAll[c])
-                  // ,
-                  // photo: photo.recordset[0].BulkColumn
                 }
-                // const mysql = require('mysql2/promise')
-                // const lol = await mysql.createConnection(config.mariadb)
-                // await lol.query(query, values)
                 await DataBase.Q(query, values)
                 if (await fs.existsSync(path.join(__dirname, `data/${result.recordset[c].fullCardN.toString()}.jpg`))) {
                   await fs.unlinkSync(path.join(__dirname, `data/${result.recordset[c].fullCardN.toString()}.jpg`))
