@@ -20,11 +20,6 @@ const credentials = {
   cert: fs.readFileSync(config.keys.cert, 'utf8'),
   ca: fs.readFileSync(config.keys.chain, 'utf8')
 }
-const credentials = {
-  key: privateKey,
-  cert: certificate,
-  ca: ca
-};
 const server = https.createServer(credentials, app);
 server.listen(httpsAddress, () => {
   console.log('GS3: Vue.js static https server started at port', httpsAddress);
