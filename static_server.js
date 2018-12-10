@@ -5,7 +5,7 @@ const https = require('https');
 const path = require('path');
 const express = require('express');
 const compression = require('compression');
-
+const config = require('./server/config')
 const baseAddress = 8080; // этот адрес необходимо сказать пользователю
 const redirectAddress = 8525; // служебный адрес http. по прямому обращению не работает
 const httpsAddress = 8526; // служебный адрес https. по прямому обращению работает
@@ -15,11 +15,11 @@ const app = express()
 app.use(compression())
 app.use(express.static(path.join(__dirname, '/dist')));
 app.get('*', (req, res, next) => res.sendFile(path.join(__dirname, '/dist/index.html')));
-
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/apps.elem.ru/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/apps.elem.ru/cert.pem', 'utf8');
-const ca = fs.readFileSync('/etc/letsencrypt/live/apps.elem.ru/chain.pem', 'utf8');
-
+const credentials = {
+  key: fs.readFileSync(config.keys.privkey, 'utf8'),
+  cert: fs.readFileSync(config.keys.cert, 'utf8'),
+  ca: fs.readFileSync(config.keys.chain, 'utf8')
+}
 const credentials = {
   key: privateKey,
   cert: certificate,
