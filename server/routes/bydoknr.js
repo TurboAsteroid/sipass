@@ -7,8 +7,8 @@ module.exports = function (app, config, router) {
       params: {
         doknr: req.query.doknr,
         ckeckpoint: req.query.kpp,
-        'sap-user': 'skud_uem',
-        'sap-password': 'sRec137K'
+        'sap-user': config.sap.u,
+        'sap-password': config.sap.p
       }
     })
     ).data

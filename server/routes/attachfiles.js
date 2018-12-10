@@ -11,7 +11,7 @@ module.exports = function (app, config, router) {
     reqQQQ.files.forEach(async function (it) {
       try {
         await fs.writeFile(dest + '/' + it.originalname, it.buffer, function (err) {
-          var req = request.post(`https://sap-prx.ugmk.com/ummc/permit/file_upload?objtype=ZCARD7105&sap-user=skud_uem&sap-password=sRec137K&objkey=${reqQQQ.query.objkey}`)
+          var req = request.post(`https://sap-prx.ugmk.com/ummc/permit/file_upload?objtype=ZCARD7105&sap-user=${config.sap.u}&sap-password=${config.sap.p}&objkey=${reqQQQ.query.objkey}`)
           var form = req.form()
           form.append('file', fs.createReadStream(dest + '/' + it.originalname))
         })
