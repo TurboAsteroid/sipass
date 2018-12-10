@@ -21,19 +21,24 @@ async function logger (json, jsonStatus, jsonKppId, req) {
 }
 module.exports = {
   userPermissions: async function (login, sqlConfig) {
-    let user = (login.split('@'))[0]
-    let permissionsSQL = await DataBase.Q(`select * from permissions where user = '${user}'`)
-    delete permissionsSQL[0][0].id
-    delete permissionsSQL[0][0].user
-    let len = Object.keys(permissionsSQL[0][0]).length
-    let permissions = {}
-    Object.assign(permissions, permissionsSQL[0][0])
-    for (let i = 0; i < len; i++) {
-      if (permissionsSQL[0][0][Object.keys(permissionsSQL[0][0])[i]] === 9) {
-        delete permissions[Object.keys(permissionsSQL[0][0])[i]]
+    try {
+      let user = (login.split('@'))[0]
+      let permissionsSQL = await DataBase.Q(`select * from permissions where user = '${user}'`)
+      delete permissionsSQL[0][0].id
+      delete permissionsSQL[0][0].user
+      let len = Object.keys(permissionsSQL[0][0]).length
+      let permissions = {}
+      Object.assign(permissions, permissionsSQL[0][0])
+      for (let i = 0; i < len; i++) {
+        if (permissionsSQL[0][0][Object.keys(permissionsSQL[0][0])[i]] === 9) {
+          delete permissions[Object.keys(permissionsSQL[0][0])[i]]
+        }
       }
+      return permissions
+    } catch (err) {
+      console.log(err)
+      return {}
     }
-    return permissions
   },
   filterKPPS: function (kpps, permissions) {
     let allowedKpps = []
