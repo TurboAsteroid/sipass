@@ -40,11 +40,11 @@ export default {
       show1: false,
       valid: false,
       e1: false,
-      password: 'gs2-1',
+      password: '',
       passwordRules: [
         (v) => !!v || 'Требуется ввести пароль'
       ],
-      login: 'gs2@elem.ru',
+      login: '',
       loginRules: [
         (v) => !!v || 'Требуется ввести имя пользователя'
       ]

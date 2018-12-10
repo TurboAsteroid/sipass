@@ -11,7 +11,7 @@ import 'es6-promise/auto'
 import auth from '@/auth'
 auth.initAuth()
 Vue.prototype.$appName = 'Разовый пропуск'
-Vue.prototype.$appVersion = 'v3.r11'
+Vue.prototype.$appVersion = 'v3.r11.1'
 try {
   Vue.prototype.$globalUserData = {permissions: {}, kpps: []}
   if (localStorage.getItem('globalUserData') !== 'undefined') {
