@@ -8,6 +8,7 @@
           :rules="loginRules"
           required
           id="login"
+          @keypress.enter="submit"
         ></v-text-field>
         <v-text-field
           v-model="password"
@@ -20,6 +21,7 @@
           label="Пароль"
           required
           id="password"
+          @keypress.enter="submit"
         ></v-text-field>
         <v-layout justify-space-between>
           <v-btn @click="submit" color="info" :disabled="!valid" id="loginbtn">Вход</v-btn>
