@@ -88,12 +88,18 @@ export default {
     removeFile (key) {
       this.files.splice(key, 1)
     },
-    inprp () {
+    async inprp () {
       this.submitFiles()
-      axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.kpp, ckeckpoint: this.$route.params.doknr, action: 'IN'})
+      const res = await axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.doknr, ckeckpoint: this.$route.params.kpp, action: 'IN', cardNumber: this.cardNumber})
+      if (res.status === 200) {
+        this.$router.go(-1)
+      }
     },
     retprp () {
-      axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.kpp, ckeckpoint: this.$route.params.doknr, action: 'RET'})
+      const res = axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.doknr, ckeckpoint: this.$route.params.kpp, action: 'RET', notes: this.notes})
+      if (res.status === 200) {
+        this.$router.go(-1)
+      }
     }
   },
   computed: {
