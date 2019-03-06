@@ -18,7 +18,7 @@ module.exports = {
   configSiPass: {
     'user': 'ITuser',
     'password': '1c*b3G3525f-',
-    'server': '10.10.4.203',
+    'server': '10.10.1.1',
     'database': 'asco4',
     'requestTimeout': 30000,
     'connectionTimeout': 30000,
