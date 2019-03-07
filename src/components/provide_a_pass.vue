@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
     <v-layout wrap align-start justify-start row fill-height v-if="show">
       <v-flex xs12 md6 d-flex>
         <v-text-field
@@ -38,6 +38,22 @@
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-flex>
+      <div class="text-xs-center">
+        <v-dialog v-model="dialog" width="300">
+          <v-card>
+            <v-card-title class="headline grey lighten-2" primary-title>
+              Оперция выполнена
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" @click="this.dialog = false">
+                OK
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
     </v-layout>
 </template>
 
@@ -49,6 +65,7 @@ export default {
   props: ['doc', 'objkey'],
   data () {
     return {
+      dialog: false,
       files: [],
       notes: '',
       cardNumber: ''
@@ -92,13 +109,13 @@ export default {
       this.submitFiles()
       const res = await axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.doknr, ckeckpoint: this.$route.params.kpp, action: 'IN', cardNumber: this.cardNumber})
       if (res.status === 200) {
-        this.$router.go(-1)
+        this.dialog = true
       }
     },
-    retprp () {
-      const res = axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.doknr, ckeckpoint: this.$route.params.kpp, action: 'RET', notes: this.notes})
+    async retprp () {
+      const res = await axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.doknr, ckeckpoint: this.$route.params.kpp, action: 'RET', notes: this.notes})
       if (res.status === 200) {
-        this.$router.go(-1)
+        this.dialog = true
       }
     }
   },
@@ -111,6 +128,13 @@ export default {
         }
       }
       return false
+    }
+  },
+  watch: {
+    dialog: function (val, oldVal) {
+      if (val === false && oldVal === true) {
+        this.$router.go(-1)
+      }
     }
   }
 }
