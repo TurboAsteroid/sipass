@@ -47,7 +47,7 @@
             <v-divider></v-divider>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="primary" @click="this.dialog = false">
+              <v-btn color="primary" @click="dialog = false">
                 OK
               </v-btn>
             </v-card-actions>
