@@ -7,7 +7,7 @@ module.exports = function (app, config, router) {
     if (req.body.action === 'IN') {
       const result = await axios.get(`https://sap-prx.ugmk.com/ummc/permit/main?sap-user=${config.sap.u}&sap-password=${config.sap.p}&action=IN&doknr=${req.body.doknr}&propusk=${req.body.cardNumber}&ckeckpoint=${req.body.ckeckpoint}`)
       console.log(result)
-    } else if (req.action === 'RET') {
+    } else if (req.body.action === 'RET') {
       const result = await axios.post(`https://sap-prx.ugmk.com/ummc/permit/main?sap-user=${config.sap.u}&sap-password=${config.sap.p}&action=RET&doknr=${req.body.doknr}&ckeckpoint=${req.body.ckeckpoint}`, querystring.stringify({ notes: req.body.notes }))
       console.log(result)
     }
