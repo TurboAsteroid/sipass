@@ -134,10 +134,10 @@ export default {
       // выбор урла по которому забирать пропуск
       if (parseInt(this.$route.params.doknr) > 0) {
         // по номеру пропуска сап
-        this.items = (await axios.get(`${this.$config.api}/bydoknr?doknr=${this.$route.params.doknr}&kpp=${this.$route.params.kpp}`)).data
+        this.items = (await axios.get(`${this.$config.api}/bydoknr?doknr=${this.$route.params.doknr}&kpp=${this.$route.params.kpp}&random=${Math.random()}`)).data
       } else if (parseInt(this.$route.params.propusk) > 0) {
         // по номеру карточки сипасс
-        this.items = (await axios.get(`${this.$config.api}/bycardid?propusk=${this.$route.params.propusk}`)).data
+        this.items = (await axios.get(`${this.$config.api}/bycardid?propusk=${this.$route.params.propusk}&random=${Math.random()}`)).data
       }
       if (this.items === undefined || this.items === null) {
         this.$router.push('/404')
