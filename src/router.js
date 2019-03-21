@@ -31,20 +31,6 @@ const card = resolve => {
     )
   })
 }
-const help = resolve => {
-  require.ensure(['@/components/help'], () => {
-    resolve(
-      require('@/components/help')
-    )
-  })
-}
-const helpPage = resolve => {
-  require.ensure(['@/components/help/page'], () => {
-    resolve(
-      require('@/components/help/page')
-    )
-  })
-}
 const router = new Router({
   mode: 'history',
   routes: [
@@ -68,22 +54,6 @@ const router = new Router({
       path: '/card/:kpp/:doknr/:propusk',
       name: 'card',
       component: card,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: '/help',
-      name: 'help',
-      component: help,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: '/help/:page',
-      name: 'helpPage',
-      component: helpPage,
       meta: {
         requiresAuth: true
       }
