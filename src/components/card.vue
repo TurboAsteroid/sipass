@@ -144,62 +144,99 @@ export default {
       } else {
         try {
           this.photobycardid = `${this.$config.api}/photobycardid?jwt=${localStorage.getItem('jwt')}&propusk=${this.items.DATA_CARD.ZPROPUSK}&random=${Math.random()}`
+          // for (let i = 0; i < this.items.APPRDATA.length; i++) {
+          //   let st = this.items.APPRDATA[i].APRST
+          //   if (this.items.STATUS === '53') {
+          //     if (st === '1') {
+          //       this.items.APPRDATA[i].APRST = 'Согласован'
+          //       if (this.status.value < 1) {
+          //         this.status = {text: 'согласован', value: 1, color: 'red', additional: {text: 'поставил(-а) отметку', full: ''}}
+          //       }
+          //     } else if (st === 'S') {
+          //       this.items.APPRDATA[i].APRST = 'Согласование'
+          //       if (this.status.value < 2) {
+          //         this.status = {text: 'согласование', value: 2, color: 'red', additional: {text: 'не поставил(-а) отметку', full: ''}}
+          //       }
+          //     } else if (st === 'IN') {
+          //       this.items.APPRDATA[i].APRST = 'Вход'
+          //       if (this.status.value < 3) {
+          //         this.status = {text: 'отметка вход', value: 3, color: 'red', additional: {text: 'поставил(-а) отметку', full: ''}}
+          //       }
+          //     } else if (st === 'OUT') {
+          //       this.items.APPRDATA[i].APRST = 'Выход'
+          //       if (this.status.value < 4) {
+          //         this.status = {text: 'отметка выход', value: 4, color: 'green', additional: {text: 'поставил(-а) отметку', full: ''}}
+          //       }
+          //     } else if (st === 'P') {
+          //       this.items.APPRDATA[i].APRST = 'Нет'
+          //       if (this.status.value < 5) {
+          //         this.status = {text: 'нет отметки', value: 5, color: 'red', additional: {text: 'не поставил(-а) отметку', full: ''}}
+          //       }
+          //     }
+          //   }
+          //   else {
+          //     if (st === '1') {
+          //       this.items.APPRDATA[i].APRST = 'Согласован'
+          //       if (this.status.value < 1) {
+          //         this.status = {text: 'согласован', value: 1}
+          //       }
+          //     } else if (st === 'S') {
+          //       this.items.APPRDATA[i].APRST = 'Согласование'
+          //       if (this.status.value < 2) {
+          //         this.status = {text: 'согласование', value: 2, additional: {text: 'поставил(-а) отметку', full: ''}}
+          //       }
+          //     } else if (st === 'IN') {
+          //       this.items.APPRDATA[i].APRST = 'Вход'
+          //       if (this.status.value < 3) {
+          //         this.status = {text: 'отметка вход', value: 3, additional: {text: 'поставил(-а) отметку', full: ''}}
+          //       }
+          //     } else if (st === 'OUT') {
+          //       this.items.APPRDATA[i].APRST = 'Выход'
+          //       if (this.status.value < 4) {
+          //         this.status = {text: 'отметка выход', value: 4, additional: {text: 'поставил(-а) отметку', full: ''}}
+          //       }
+          //     } else if (st === 'P') {
+          //       this.items.APPRDATA[i].APRST = 'Нет'
+          //       if (this.status.value < 5) {
+          //         this.status = {text: 'нет отметки', value: 5, additional: {text: 'не поставил(-а) отметку', full: ''}}
+          //       }
+          //     }
+          //   }
+          // }
+          this.status = { text: '', value: 1, additional: { text: '', full: '' } }
           for (let i = 0; i < this.items.APPRDATA.length; i++) {
-            let st = this.items.APPRDATA[i].APRST
-            if (this.items.STATUS === '53') {
-              if (st === '1') {
-                this.items.APPRDATA[i].APRST = 'Согласован'
-                if (this.status.value < 1) {
-                  this.status = {text: 'согласован', value: 1, color: 'red', additional: {text: 'поставил(-а) отметку', full: ''}}
-                }
-              } else if (st === 'S') {
-                this.items.APPRDATA[i].APRST = 'Согласование'
-                if (this.status.value < 2) {
-                  this.status = {text: 'согласование', value: 2, color: 'red', additional: {text: 'не поставил(-а) отметку', full: ''}}
-                }
-              } else if (st === 'IN') {
-                this.items.APPRDATA[i].APRST = 'Вход'
-                if (this.status.value < 3) {
-                  this.status = {text: 'отметка вход', value: 3, color: 'red', additional: {text: 'поставил(-а) отметку', full: ''}}
-                }
-              } else if (st === 'OUT') {
-                this.items.APPRDATA[i].APRST = 'Выход'
-                if (this.status.value < 4) {
-                  this.status = {text: 'отметка выход', value: 4, color: 'green', additional: {text: 'поставил(-а) отметку', full: ''}}
-                }
-              } else if (st === 'P') {
-                this.items.APPRDATA[i].APRST = 'Нет'
-                if (this.status.value < 5) {
-                  this.status = {text: 'нет отметки', value: 5, color: 'red', additional: {text: 'не поставил(-а) отметку', full: ''}}
-                }
+            if (this.items.STATUS === '53' && this.items.APPRDATA[i].APRST === 'IN' && this.items.APPRDATA[i].APRROLE === 'MT') {
+              this.status = {
+                text: 'нет отметки',
+                value: 2,
+                color: 'red',
+                additional: {text: 'не поставил(-а) отметку', full: ''}
               }
-            } else {
-              if (st === '1') {
-                this.items.APPRDATA[i].APRST = 'Согласован'
-                if (this.status.value < 1) {
-                  this.status = {text: 'согласован', value: 1}
-                }
-              } else if (st === 'S') {
-                this.items.APPRDATA[i].APRST = 'Согласование'
-                if (this.status.value < 2) {
-                  this.status = {text: 'согласование', value: 2, additional: {text: 'поставил(-а) отметку', full: ''}}
-                }
-              } else if (st === 'IN') {
-                this.items.APPRDATA[i].APRST = 'Вход'
-                if (this.status.value < 3) {
-                  this.status = {text: 'отметка вход', value: 3, additional: {text: 'поставил(-а) отметку', full: ''}}
-                }
-              } else if (st === 'OUT') {
-                this.items.APPRDATA[i].APRST = 'Выход'
-                if (this.status.value < 4) {
-                  this.status = {text: 'отметка выход', value: 4, additional: {text: 'поставил(-а) отметку', full: ''}}
-                }
-              } else if (st === 'P') {
-                this.items.APPRDATA[i].APRST = 'Нет'
-                if (this.status.value < 5) {
-                  this.status = {text: 'нет отметки', value: 5, additional: {text: 'не поставил(-а) отметку', full: ''}}
-                }
+            }
+            if (this.items.STATUS === '53' && this.items.APPRDATA[i].APRST === 'IN' && this.items.APPRDATA[i].APRROLE === 'IW') {
+              this.status = {
+                text: 'отметка вход',
+                value: 3,
+                color: 'red',
+                additional: {text: 'поставил(-а) отметку', full: ''}
               }
+            }
+            if (this.items.STATUS === '53' && this.items.APPRDATA[i].APRST === 'OUT' && this.items.APPRDATA[i].APRROLE === 'IW') {
+              this.status = {
+                text: 'отметка выход',
+                value: 4,
+                color: 'green',
+                additional: {text: 'поставил(-а) отметку', full: ''}
+              }
+              break
+            }
+          }
+          if (this.status.value < 2 && this.items.STATUS === '53') {
+            this.status = {
+              text: 'нет отметки',
+              value: 5,
+              color: 'red',
+              additional: {text: 'не поставил(-а) отметку', full: ''}
             }
           }
           this.card = [
