@@ -70,6 +70,7 @@ export default {
     windowWidth: function (val, oldVal) {
       if (val < 800) {
         this.lite = true
+        console.log(val)
       } else {
         this.lite = false
       }
