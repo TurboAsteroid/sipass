@@ -131,6 +131,11 @@ export default {
     }
   },
   watch: {
+    cardNumber: function (val, oldVal) {
+      if (val === '215,') {
+        this.cardNumber = `00215`
+      }
+    },
     dialog: function (val, oldVal) {
       if (val === false && oldVal === true) {
         this.$router.go(-1)
