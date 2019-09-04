@@ -42,7 +42,7 @@
         <v-dialog v-model="dialog" width="300">
           <v-card>
             <v-card-title class="headline grey lighten-2" primary-title>
-              Оперция выполнена
+              Операция выполнена
             </v-card-title>
             <v-divider></v-divider>
             <v-card-actions>
