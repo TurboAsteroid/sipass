@@ -108,11 +108,10 @@ export default {
     async inprp () {
       this.submitFiles()
       let cardn = this.cardNumber.replace('215,', '00215')
-        console.log(cardn)
-      // const res = await axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.doknr, ckeckpoint: this.$route.params.kpp, action: 'IN', cardNumber: cardn})
-      // if (res.status === 200) {
-      //   this.dialog = true
-      // }
+      const res = await axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.doknr, ckeckpoint: this.$route.params.kpp, action: 'IN', cardNumber: cardn})
+      if (res.status === 200) {
+        this.dialog = true
+      }
     },
     async retprp () {
       const res = await axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.doknr, ckeckpoint: this.$route.params.kpp, action: 'RET', notes: this.notes})
