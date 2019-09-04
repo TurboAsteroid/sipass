@@ -7,7 +7,7 @@
         ></v-text-field>
       </v-flex>
       <v-flex xs6 md3 d-flex>
-        <v-btn @click="inprp" :disabled="cardNumber.length <= 9" color="info"><i class="material-icons">check_circle</i>&nbsp;Отметить вход</v-btn>
+        <v-btn @click="inprp" :disabled="cardNumber.length <= 8 || cardNumber.length >= 10" color="info"><i class="material-icons">check_circle</i>&nbsp;Отметить вход</v-btn>
       </v-flex>
       <v-flex xs6 md3 d-flex>
         <v-btn @click="addFiles" color="info"><i class="material-icons">attach_file</i>&nbsp;Прикрепить файл</v-btn>
@@ -107,7 +107,8 @@ export default {
     },
     async inprp () {
       this.submitFiles()
-      const res = await axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.doknr, ckeckpoint: this.$route.params.kpp, action: 'IN', cardNumber: this.cardNumber})
+      let cardn = cardNumber.replaceAll('215,', '00215')
+      const res = await axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.doknr, ckeckpoint: this.$route.params.kpp, action: 'IN', cardNumber: cardn})
       if (res.status === 200) {
         this.dialog = true
       }
@@ -131,11 +132,6 @@ export default {
     }
   },
   watch: {
-    cardNumber: function (val, oldVal) {
-      if (val === '215,') {
-        this.cardNumber = `00215`
-      }
-    },
     dialog: function (val, oldVal) {
       if (val === false && oldVal === true) {
         this.$router.go(-1)
