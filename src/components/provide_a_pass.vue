@@ -107,7 +107,7 @@ export default {
     },
     async inprp () {
       this.submitFiles()
-      let cardn = cardNumber.replace('215,', '00215')
+      let cardn = this.cardNumber.replace('215,', '00215')
       const res = await axios.post(`${this.$config.api}/doit`, {doknr: this.$route.params.doknr, ckeckpoint: this.$route.params.kpp, action: 'IN', cardNumber: cardn})
       if (res.status === 200) {
         this.dialog = true
